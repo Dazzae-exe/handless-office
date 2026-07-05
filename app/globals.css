@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Manual dark-mode toggle hook for a future theme switcher.
+   Until then, the system preference drives the theme (see @media below). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Design tokens ─────────────────────────────────────────────────────────
+   Light: blancos/grises suaves. Dark: blackout total con highlights púrpura.
+   Minimalista 2026, bordes de 1px, radios de 11px. */
+:root {
+  --background: #fafafa;
+  --surface: #ffffff;
+  --surface-hover: #f4f4f5;
+  --foreground: #18181b;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --input: #ffffff;
+  --ring: #8b5cf6;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-foreground: #ffffff;
+  --danger: #dc2626;
+  --radius: 11px;
+}
+
+.dark {
+  --background: #000000;
+  --surface: #0a0a0a;
+  --surface-hover: #151517;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --border: #1f1f22;
+  --input: #0a0a0a;
+  --ring: #a78bfa;
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
+  --accent-foreground: #0a0a0a;
+  --danger: #f87171;
+}
+
+/* Respeta la preferencia del sistema cuando no hay clase .dark/.light forzada. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: #000000;
+    --surface: #0a0a0a;
+    --surface-hover: #151517;
+    --foreground: #f4f4f5;
+    --muted: #a1a1aa;
+    --border: #1f1f22;
+    --input: #0a0a0a;
+    --ring: #a78bfa;
+    --accent: #8b5cf6;
+    --accent-hover: #a78bfa;
+    --accent-foreground: #0a0a0a;
+    --danger: #f87171;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
+
+  --radius-card: 11px;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
