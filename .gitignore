@@ -9,6 +9,10 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+CLAUDE.md
+IMPLEMENTATION.md
+.claude/
+.agents/
 
 # testing
 /coverage
@@ -33,9 +37,6 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
-
-# claude code local config (machine-specific)
-.claude/settings.local.json
 
 # vercel
 .vercel
