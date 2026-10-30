@@ -11,8 +11,8 @@ import { Input } from '@/components/common/Input';
 import { Dialog } from '@/components/common/Dialog';
 import { usePosts } from '@/lib/hooks/usePosts';
 import { uploadEditorImage, ACCEPTED_IMAGE_TYPES } from '@/lib/supabase/storage';
-import { slugify, validatePostContent, validatePostTitle } from '@/lib/validators/post';
-import type { Post } from '@/lib/types';
+import { slugify, validatePostContent, validatePostTitle } from '@/utils/validators/post';
+import type { Post } from '@/types/types';
 
 // El editor arrastra Tiptap + lowlight + yjs: se carga solo en cliente y solo
 // en las rutas de edición (bundle-dynamic-imports). Sin SSR porque Tiptap ya

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
-import { validateEmail, validatePassword } from '@/lib/validators/auth';
+import { validateEmail, validatePassword } from '@/utils/validators/auth';
 
 export interface AuthState {
   error?: string;

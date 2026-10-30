@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import type { Database } from '@/lib/types';
+import type { Database } from '@/types/types';
 
 /** Rutas accesibles sin sesión iniciada. */
 const PUBLIC_ROUTES = ['/login', '/signup', '/auth', '/auth-code-error'];

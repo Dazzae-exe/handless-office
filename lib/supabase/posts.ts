@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Post, PostInsert, PostUpdate } from '@/lib/types';
+import type { Post, PostInsert, PostUpdate } from '@/types/types';
 
 /** Campos del formulario; `user_id` se completa con la sesión al crear. */
 export type PostFormData = Omit<PostInsert, 'user_id'>;

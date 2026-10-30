@@ -1,6 +1,6 @@
 /** Validaciones y utilidades compartidas para el formulario de proyectos. */
 
-import { isEmptyHtml } from '@/lib/validators/html';
+import { isEmptyHtml } from '@/utils/validators/html';
 
 export function validateProjectTitle(title: string): string | null {
   if (!title.trim()) return 'El título es obligatorio.';

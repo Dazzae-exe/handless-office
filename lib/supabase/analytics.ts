@@ -4,7 +4,7 @@ import type {
   AnalyticsSummary,
   AnalyticsTopPost,
   AnalyticsTopProject,
-} from '@/lib/types';
+} from '@/types/types';
 
 /** Días que cubre la serie temporal del dashboard de analíticas. */
 export const ANALYTICS_RANGE_DAYS = 30;

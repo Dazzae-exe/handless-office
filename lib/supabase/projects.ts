@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Project, ProjectInsert, ProjectUpdate } from '@/lib/types';
+import type { Project, ProjectInsert, ProjectUpdate } from '@/types/types';
 
 /** Campos del formulario; `user_id` se completa con la sesión al crear. */
 export type ProjectFormData = Omit<ProjectInsert, 'user_id'>;

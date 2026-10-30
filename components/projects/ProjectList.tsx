@@ -1,5 +1,5 @@
 import { ProjectCard } from '@/components/projects/ProjectCard';
-import type { Project } from '@/lib/types';
+import type { Project } from '@/types/types';
 
 interface ProjectListProps {
   projects: Project[];

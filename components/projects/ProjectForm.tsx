@@ -16,8 +16,8 @@ import {
   validateOptionalUrl,
   validateProjectContent,
   validateProjectTitle,
-} from '@/lib/validators/project';
-import type { Project } from '@/lib/types';
+} from '@/utils/validators/project';
+import type { Project } from '@/types/types';
 
 // Igual que en PostForm: Tiptap (lowlight/yjs) se paga solo en las rutas de
 // edición y solo en cliente (bundle-dynamic-imports).

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { FolderGit2 } from 'lucide-react';
-import type { Project } from '@/lib/types';
+import type { Project } from '@/types/types';
 
 interface ProjectCardProps {
   project: Project;

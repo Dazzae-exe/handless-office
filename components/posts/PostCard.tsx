@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { FileText, Star } from 'lucide-react';
-import type { Post } from '@/lib/types';
+import type { Post } from '@/types/types';
 
 // Formato determinista (locale y zona fijas) para que SSR e hidratación coincidan.
 const dateFormatter = new Intl.DateTimeFormat('es', {

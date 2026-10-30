@@ -1,6 +1,6 @@
 /** Validaciones y utilidades compartidas para el formulario de posts. */
 
-import { isEmptyHtml } from '@/lib/validators/html';
+import { isEmptyHtml } from '@/utils/validators/html';
 
 /** Convierte un título en un slug URL-safe: minúsculas, sin acentos, guiones. */
 export function slugify(text: string): string {
