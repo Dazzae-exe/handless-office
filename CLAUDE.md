@@ -1,10 +1,10 @@
-# CLAUDE.md
+# [CLAUDE.md](http://CLAUDE.md)
 
 Esto es una guia para el agente de claude code para que conozca un poco sobre el repositorio.
 
 ## Agentes
 
-- Implementador: Se encarga solo de implementar las tareas que ya se tienen en la lista de tareas.
+- Implementador: Se encarga solo de implementar las tareas que esten en pendiente que ya se tienen en la lista de tareas. Trabaja una tarea hasta que llegue a done.
 - Manager: Descompone las tareas y las actualiza dentro de la lista de tareas. El invoca al implementador para realizar una tarea y espera que el implementador finalice completamente con visto bueno del reviewer.
 - Reviewer: Te encargas de revisar la tarea que finaliza el implementador y te encargas de darle el visto bueno o malo para que prosiga su camino.
 
@@ -65,3 +65,11 @@ Carpeta donde son publicos las imagenes u otro tipo de documento.
 ### Hooks
 
 Carpeta para manejar los hooks que se crean solo si es necesario y funciona para manejar los estados y comportamientos complejos sin la necesidad de utilizar antiguas clases de JavaScript.
+
+## Reglas del proyecto
+
+- TypeScript estrictamente, evita any y undefined.
+- Evitar a toda costa el useEffect y realizar muchas funciones dentro de componentes.
+- Utiliza practicas buenas de React 19.
+- Proyecto MIT. Debe ser accesible para la persona que quiera utilizarlo y guardar sus publicaciones en Supabase sin importar como se llame su tabla.
+
