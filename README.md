@@ -10,7 +10,6 @@ No custom backend server required: [Supabase](https://supabase.com) provides the
 - 📝 **Posts & projects CRUD** — create, edit, publish/unpublish, and delete both content types, with drafts, excerpts, slugs, and tags.
 - 🖼️ **Image uploads** — images are stored in Supabase Storage and embedded directly in the editor.
 - 📊 **Analytics** — track views on your posts, projects, and pages.
-- 🔐 **Authentication** — email/password auth with session handling via `@supabase/ssr`.
 - 🔒 **Row-Level Security** — every table is protected by RLS policies so data access is enforced at the database.
 - 🎨 **Light & dark themes** — minimalist light palette and a blackout dark theme with purple highlights, plus a collapsible Notion-like sidebar.
 
@@ -58,15 +57,20 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ### 4. Set up the database
 
-Create the `posts`, `projects`, `tags`, `images`, and analytics tables in your
-Supabase project, and enable RLS on each. The full schema and policies are
-documented in [`IMPLEMENTATION.md`](./IMPLEMENTATION.md), and a `posts-images`
-Storage bucket is required for image uploads.
+Create the `posts`, `projects` and `images` tables plus the analytics views
+(`analytics_summary`, `analytics_daily`, `analytics_top_posts`,
+`analytics_top_projects`) in your Supabase project, and enable RLS on each
+table. The expected columns are typed in [`types/`](./types). A public
+`tiptap_content` Storage bucket is required for image uploads
+(see [`lib/supabase/storage.ts`](./lib/supabase/storage.ts)).
 
 ### 5. Run the dev server
 
 ```bash
-pnpm dev
+pnpm dev     # dev server
+pnpm build   # production build
+pnpm start   # serve the build
+pnpm lint    # lint
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -74,16 +78,21 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Project Structure
 
 ```
-app/            # Next.js App Router (auth, dashboard, posts, projects, analytics)
+app/            # Next.js App Router: dashboard, posts, projects, analytics, 404/error pages
 components/     # UI: editor, posts, projects, layout, common, analytics
-lib/            # Supabase clients, hooks, validators, theme, types
+hooks/          # Client hooks (posts, projects, list filters, mutations, theme)
+lib/            # Supabase clients and queries, theme store, list params
+utils/          # Pure helpers: validators, theme script
+types/          # One file per domain type (post, project, analytics, ...)
+docs/           # Decisions, explorations, feature list and shared memory
 public/         # Static assets
 ```
 
 ## Documentation
 
-- [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) — detailed implementation log, database schema, and RLS policies (in Spanish).
-- [`CLAUDE.md`](./CLAUDE.md) — architecture notes and design guidelines (in Spanish).
+- [`CLAUDE.md`](./CLAUDE.md) — architecture notes, stack and project rules (in Spanish).
+- [`AGENTS.md`](./AGENTS.md) — map of the repo for agents (in Spanish).
+- [`docs/`](./docs) — technical decisions, explorations, feature list and memory (in Spanish).
 
 ## License
 
