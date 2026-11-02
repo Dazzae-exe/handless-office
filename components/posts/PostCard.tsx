@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { FileText, Star } from 'lucide-react';
-import type { Post } from '@/types/types';
+import type { Post } from '@/types/post';
 
 // Formato determinista (locale y zona fijas) para que SSR e hidratación coincidan.
 const dateFormatter = new Intl.DateTimeFormat('es', {
@@ -15,10 +15,6 @@ interface PostCardProps {
   post: Post;
 }
 
-/**
- * Fila-tarjeta de un post en el listado. Una sola superficie que enlaza a la
- * página de edición; el estado se muestra como badge, sin acciones anidadas.
- */
 export function PostCard({ post }: PostCardProps) {
   return (
     <li>

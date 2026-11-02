@@ -18,19 +18,11 @@ interface ProjectsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-/**
- * Grid de proyectos con filtros, búsqueda, tag activo y paginación resueltos
- * en el servidor a partir de la URL (?status=&q=&tag=&page=).
- */
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const { status, q, page, tag } = parseListParams(await searchParams);
   const supabase = await createClient();
 
-  // El proxy garantiza sesión en esta ruta; el sub del JWT es el user_id.
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims.sub ?? '';
-
-  let query = supabase.from('projects').select('*', { count: 'exact' }).eq('user_id', userId);
+  let query = supabase.from('projects').select('*', { count: 'exact' });
   if (status !== 'all') query = query.eq('published', status === 'published');
   // `q` llega saneado de parseListParams (sin comodines ni comillas).
   if (q) query = query.or(`title.ilike."%${q}%",description.ilike."%${q}%"`);
@@ -38,10 +30,9 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
 
   const from = (page - 1) * PROJECTS_PAGE_SIZE;
 
-  // La lista paginada y el agregado de tags (para los chips) en paralelo.
   const [listRes, tagsRes] = await Promise.all([
     query.order('created_at', { ascending: false }).range(from, from + PROJECTS_PAGE_SIZE - 1),
-    supabase.from('projects').select('tags').eq('user_id', userId),
+    supabase.from('projects').select('tags'),
   ]);
 
   // Página fuera de rango (URL editada a mano): vuelve a la página 1.

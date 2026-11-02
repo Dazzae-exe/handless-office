@@ -1,5 +1,3 @@
-/** Validaciones y utilidades compartidas para el formulario de proyectos. */
-
 import { isEmptyHtml } from '@/utils/validators/html';
 
 export function validateProjectTitle(title: string): string | null {
@@ -12,7 +10,6 @@ export function validateProjectContent(html: string): string | null {
   return null;
 }
 
-/** Valida una URL opcional: vacía es válida; si hay valor debe ser http(s). */
 export function validateOptionalUrl(value: string): string | null {
   if (!value) return null;
   try {
@@ -26,7 +23,6 @@ export function validateOptionalUrl(value: string): string | null {
   }
 }
 
-/** Normaliza un tag: recorta espacios y colapsa los internos. */
 export function normalizeTag(tag: string): string {
   return tag.trim().replace(/\s+/g, ' ');
 }

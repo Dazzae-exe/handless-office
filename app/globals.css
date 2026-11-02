@@ -1,12 +1,7 @@
 @import "tailwindcss";
 
-/* Manual dark-mode toggle hook for a future theme switcher.
-   Until then, the system preference drives the theme (see @media below). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── Design tokens ─────────────────────────────────────────────────────────
-   Light: blancos/grises suaves. Dark: blackout total con highlights púrpura.
-   Minimalista 2026, bordes de 1px, radios de 11px. */
 :root {
   --background: #fafafa;
   --surface: #ffffff;

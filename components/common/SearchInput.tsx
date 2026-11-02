@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
-import { useListFilters } from '@/lib/hooks/useListFilters';
+import { useListFilters } from '@/hooks/useListFilters';
 
 const DEBOUNCE_MS = 300;
 
@@ -11,14 +11,13 @@ interface SearchInputProps {
   ariaLabel: string;
 }
 
-/** Búsqueda con debounce que escribe `?q=` (la consulta corre en el servidor). */
 export function SearchInput({ placeholder = 'Buscar…', ariaLabel }: SearchInputProps) {
   const { searchParams, setFilters, isPending } = useListFilters();
   const [value, setValue] = useState(searchParams.get('q') ?? '');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Limpia el debounce colgado al desmontar (navegación).
-  useEffect(() => () => {
+  // Estable a propósito: un ref callback nuevo por render ejecutaría la limpieza y cancelaría el debounce.
+  const clearTimerOnUnmount = useCallback(() => () => {
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
@@ -34,6 +33,7 @@ export function SearchInput({ placeholder = 'Buscar…', ariaLabel }: SearchInpu
     <div className="relative w-full sm:w-64">
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
       <input
+        ref={clearTimerOnUnmount}
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}

@@ -1,11 +1,5 @@
 import Link from 'next/link';
-
-export interface TopResource {
-  id: string;
-  title: string;
-  views: number;
-  unique_visitors: number;
-}
+import type { TopResource } from '@/types/analytics';
 
 interface TopResourceListProps {
   title: string;
@@ -14,10 +8,6 @@ interface TopResourceListProps {
   emptyText: string;
 }
 
-/**
- * Ranking de recursos más vistos. Una sola carta: encabezado + filas planas
- * separadas por hairlines (sin cartas anidadas).
- */
 export function TopResourceList({ title, items, hrefBase, emptyText }: TopResourceListProps) {
   return (
     <div className="rounded-card border border-border bg-surface p-6">

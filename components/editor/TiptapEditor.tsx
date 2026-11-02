@@ -29,24 +29,16 @@ import {
 
 import { SlashCommand } from '@/components/editor/extensions/slash-command';
 import { uploadEditorImage } from '@/lib/supabase/storage';
-import type { EditorContentType } from '@/lib/supabase/storage';
+import type { EditorContentType } from '@/types/editor';
 import './editor.css';
 
 const lowlight = createLowlight(common);
 
 export interface TiptapEditorProps {
-  /** Contenido HTML controlado. */
   value: string;
-  /** Se dispara con el HTML actualizado en cada cambio. */
   onChange: (html: string) => void;
-  /**
-   * Tipo de contenido: define la carpeta del Storage donde se suben las
-   * imágenes (`posts/` para blogs, `projects/` para proyectos).
-   */
   contentType: EditorContentType;
-  /** Texto del placeholder cuando el editor está vacío. */
   placeholder?: string;
-  /** Deshabilita toda edición (solo lectura permanente). */
   disabled?: boolean;
   className?: string;
 }
@@ -68,8 +60,7 @@ export function TiptapEditor({
 
   const editable = !disabled && mode === 'edit';
 
-  // Referencia estable para insertar imágenes desde handlers de PM (paste/drop),
-  // evitando closures obsoletos sobre `editor`.
+  // Ref estable para los handlers de PM (paste/drop): evita closures obsoletos sobre `editor`.
   const insertImageRef = useRef<(file: File) => void>(() => {});
   const requestImageUpload = useCallback(() => {
     (document.getElementById(imageInputId) as HTMLInputElement | null)?.click();
@@ -81,7 +72,6 @@ export function TiptapEditor({
     editable,
     extensions: [
       StarterKit.configure({
-        // Usamos CodeBlockLowlight en su lugar (resaltado de sintaxis).
         codeBlock: false,
         link: {
           openOnClick: false,
@@ -170,17 +160,17 @@ export function TiptapEditor({
     },
     [editor, contentType]
   );
-  // Mantén la referencia de subida al día para los handlers de PM (paste/drop).
+  // En efecto y no en render: react-hooks prohíbe escribir refs al renderizar y los handlers de PM leen este ref.
   useEffect(() => {
     insertImageRef.current = insertImage;
   }, [insertImage]);
 
-  // Sincroniza el modo edición/preview con el estado editable del editor.
+  // useEditor no reaplica `editable` tras crear el editor: hay que sincronizarlo a mano.
   useEffect(() => {
     editor?.setEditable(editable);
   }, [editor, editable]);
 
-  // Refleja cambios externos de `value` sin romper el cursor ni re-emitir.
+  // Solo se resetea el contenido si difiere, para no romper el cursor ni re-emitir onUpdate.
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value, { emitUpdate: false });
@@ -207,7 +197,6 @@ export function TiptapEditor({
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
-      {/* Barra de modo: alterna edición / vista de lectura + contador. */}
       <div className="flex items-center justify-between gap-3">
         <div className="inline-flex rounded-card border border-border bg-surface p-0.5 text-sm">
           {(['edit', 'preview'] as const).map((m) => (

@@ -1,8 +1,8 @@
 'use client';
 
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/utils/theme/ThemeProvider';
-import type { Theme } from '@/utils/theme/theme-script';
+import { useTheme } from '@/hooks/useTheme';
+import type { Theme } from '@/types/theme';
 
 const OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
   { value: 'light', label: 'Tema claro', icon: Sun },
@@ -10,10 +10,6 @@ const OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
   { value: 'system', label: 'Tema del sistema', icon: Monitor },
 ];
 
-/**
- * Control segmentado de 3 estados (claro/oscuro/sistema). Minimalista, borde de
- * 1px y radio de 11px como el resto del sistema de diseño.
- */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 

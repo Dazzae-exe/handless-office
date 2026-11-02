@@ -1,16 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { FolderGit2 } from 'lucide-react';
-import type { Project } from '@/types/types';
+import type { Project } from '@/types/project';
 
 interface ProjectCardProps {
   project: Project;
 }
 
-/**
- * Card de proyecto para el grid: cover arriba, título con badge de estado,
- * descripción y tags. Una sola superficie que enlaza a la edición.
- */
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <li>

@@ -8,10 +8,6 @@ interface EmptyStateProps {
   action?: ReactNode;
 }
 
-/**
- * Estado vacío para secciones sin contenido todavía. Una sola superficie
- * (tarjeta), centrada y minimalista.
- */
 export function EmptyState({
   icon: Icon,
   title,

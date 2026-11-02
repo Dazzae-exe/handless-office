@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { PanelLeft, PanelLeftClose, X } from 'lucide-react';
 import { Header } from './Header';
@@ -8,13 +8,12 @@ import { Footer } from './Footer';
 import { SidebarContent } from './Sidebar';
 
 const PINNED_STORAGE_KEY = 'sidebar-pinned';
-/** Evento propio para notificar el cambio de fijado en la misma pestaña. */
+// Evento propio: `storage` no se dispara en la misma pestaña que escribe.
 const PINNED_EVENT = 'sidebarpinnedchange';
-/** Retardo para no cerrar el panel flotante al cruzar huecos con el puntero. */
+// Retardo para no cerrar el panel flotante al cruzar huecos con el puntero.
 const CLOSE_DELAY_MS = 150;
 
-// Store externo para el estado "fijado" (persistido en localStorage). Igual que
-// el tema, evita setState en efectos y resuelve la hidratación de forma segura.
+// Store externo en localStorage: evita setState en efectos y resuelve la hidratación de forma segura.
 function subscribePinned(callback: () => void): () => void {
   window.addEventListener('storage', callback);
   window.addEventListener(PINNED_EVENT, callback);
@@ -32,18 +31,10 @@ const controlButton =
   'inline-flex h-8 w-8 items-center justify-center rounded-[8px] text-muted transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 interface AppShellProps {
-  email: string;
   children: ReactNode;
 }
 
-/**
- * Shell de la aplicación estilo Notion:
- * - Fijada: la barra lateral ocupa una columna y empuja el contenido.
- * - Colapsada: el contenido ocupa todo el ancho y la barra aparece flotando al
- *   pasar el puntero por el borde izquierdo, desvaneciéndose al salir.
- * - Móvil: drawer con backdrop, independiente del estado fijado.
- */
-export function AppShell({ email, children }: AppShellProps) {
+export function AppShell({ children }: AppShellProps) {
   const pinned = useSyncExternalStore(
     subscribePinned,
     getPinnedSnapshot,
@@ -69,12 +60,10 @@ export function AppShell({ email, children }: AppShellProps) {
     closeTimer.current = setTimeout(() => setHovering(false), CLOSE_DELAY_MS);
   }, []);
 
-  useEffect(
-    () => () => {
-      if (closeTimer.current) clearTimeout(closeTimer.current);
-    },
-    []
-  );
+  // Estable a propósito: un ref callback nuevo por render ejecutaría la limpieza y cancelaría el cierre diferido.
+  const clearTimerOnUnmount = useCallback(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
 
   const collapseControl = (
     <button
@@ -94,15 +83,13 @@ export function AppShell({ email, children }: AppShellProps) {
   );
 
   return (
-    <div className="flex min-h-dvh bg-background">
-      {/* Escritorio · barra lateral fijada (en flujo) */}
+    <div ref={clearTimerOnUnmount} className="flex min-h-dvh bg-background">
       {pinned && (
         <aside className="hidden w-64 shrink-0 border-r border-border bg-surface md:block">
-          <SidebarContent email={email} control={collapseControl} />
+          <SidebarContent control={collapseControl} />
         </aside>
       )}
 
-      {/* Escritorio · zona de activación al colapsar */}
       {!pinned && (
         <div
           aria-hidden
@@ -112,7 +99,6 @@ export function AppShell({ email, children }: AppShellProps) {
         />
       )}
 
-      {/* Escritorio · barra lateral flotante (fija sobre el contenido) */}
       {!pinned && (
         <aside
           onMouseEnter={openFloat}
@@ -123,11 +109,10 @@ export function AppShell({ email, children }: AppShellProps) {
               : 'pointer-events-none -translate-x-[112%] opacity-0'
           }`}
         >
-          <SidebarContent email={email} control={collapseControl} />
+          <SidebarContent control={collapseControl} />
         </aside>
       )}
 
-      {/* Móvil · backdrop + drawer */}
       {mobileOpen && (
         <div
           aria-hidden
@@ -141,7 +126,6 @@ export function AppShell({ email, children }: AppShellProps) {
         }`}
       >
         <SidebarContent
-          email={email}
           onNavigate={() => setMobileOpen(false)}
           control={
             <button
@@ -156,7 +140,6 @@ export function AppShell({ email, children }: AppShellProps) {
         />
       </aside>
 
-      {/* Columna principal */}
       <div className="flex min-w-0 flex-1 flex-col">
         <Header onOpenMobile={() => setMobileOpen(true)} />
         <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>

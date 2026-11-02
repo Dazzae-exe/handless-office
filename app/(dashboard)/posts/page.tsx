@@ -17,19 +17,11 @@ interface PostsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-/**
- * Listado de posts con filtros, búsqueda y paginación resueltos en el
- * servidor a partir de la URL (?status=&q=&page=).
- */
 export default async function PostsPage({ searchParams }: PostsPageProps) {
   const { status, q, page } = parseListParams(await searchParams);
   const supabase = await createClient();
 
-  // El proxy garantiza sesión en esta ruta; el sub del JWT es el user_id.
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims.sub ?? '';
-
-  let query = supabase.from('posts').select('*', { count: 'exact' }).eq('user_id', userId);
+  let query = supabase.from('posts').select('*', { count: 'exact' });
   if (status !== 'all') query = query.eq('published', status === 'published');
   // `q` llega saneado de parseListParams (sin comodines ni comillas).
   if (q) query = query.or(`title.ilike."%${q}%",excerpt.ilike."%${q}%"`);

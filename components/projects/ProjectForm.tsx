@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -9,7 +9,7 @@ import { ArrowLeft, ImagePlus, Loader2, Settings2, Trash2, X } from 'lucide-reac
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Dialog } from '@/components/common/Dialog';
-import { useProjects } from '@/lib/hooks/useProjects';
+import { useProjects } from '@/hooks/useProjects';
 import { uploadEditorImage, ACCEPTED_IMAGE_TYPES } from '@/lib/supabase/storage';
 import {
   normalizeTag,
@@ -17,10 +17,9 @@ import {
   validateProjectContent,
   validateProjectTitle,
 } from '@/utils/validators/project';
-import type { Project } from '@/types/types';
+import type { Project } from '@/types/project';
 
-// Igual que en PostForm: Tiptap (lowlight/yjs) se paga solo en las rutas de
-// edición y solo en cliente (bundle-dynamic-imports).
+// Tiptap + lowlight + yjs pesan: solo en cliente y en las rutas de edición (bundle-dynamic-imports).
 const TiptapEditor = dynamic(
   () => import('@/components/editor/TiptapEditor').then((m) => m.TiptapEditor),
   {
@@ -33,16 +32,17 @@ const TiptapEditor = dynamic(
   }
 );
 
+// Fuera del componente para que el ref callback sea estable y solo se ejecute al montar.
+function resizeTitle(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = `${el.scrollHeight}px`;
+}
+
 interface ProjectFormProps {
-  /** Proyecto existente para editar; omitir para crear uno nuevo. */
   project?: Project;
 }
 
-/**
- * Página de escritura estilo Notion para proyectos: título gigante + editor a
- * ancho completo. Los metadatos (descripción, URLs, tags, portada) viven en
- * el diálogo Ajustes, igual que en posts.
- */
 export function ProjectForm({ project }: ProjectFormProps) {
   const router = useRouter();
   const { create, update, remove, pending, error } = useProjects();
@@ -61,22 +61,10 @@ export function ProjectForm({ project }: ProjectFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  // El HTML del editor vive en un ref: cambia en cada tecla y solo se lee al
-  // guardar, así el formulario no se re-renderiza mientras se escribe.
+  // En un ref y no en estado: cambia en cada tecla y re-renderizar el formulario al escribir sería caro.
   const contentRef = useRef(project?.content ?? '');
   // Valor inicial estable para el editor controlado (no se resetea al tipear).
   const [initialContent] = useState(project?.content ?? '');
-
-  const titleRef = useRef<HTMLTextAreaElement>(null);
-
-  // Auto-alto del título (multilínea como Notion, sin scrollbar interno).
-  const resizeTitle = () => {
-    const el = titleRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  };
-  useEffect(resizeTitle, []);
 
   const addTag = (raw: string) => {
     const tag = normalizeTag(raw);
@@ -209,11 +197,11 @@ export function ProjectForm({ project }: ProjectFormProps) {
       )}
 
       <textarea
-        ref={titleRef}
+        ref={resizeTitle}
         value={title}
         onChange={(e) => {
           setTitle(e.target.value);
-          resizeTitle();
+          resizeTitle(e.currentTarget);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.preventDefault();

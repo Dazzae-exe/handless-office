@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -9,14 +9,12 @@ import { ArrowLeft, ImagePlus, Loader2, Settings2, Trash2, X } from 'lucide-reac
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Dialog } from '@/components/common/Dialog';
-import { usePosts } from '@/lib/hooks/usePosts';
+import { usePosts } from '@/hooks/usePosts';
 import { uploadEditorImage, ACCEPTED_IMAGE_TYPES } from '@/lib/supabase/storage';
 import { slugify, validatePostContent, validatePostTitle } from '@/utils/validators/post';
-import type { Post } from '@/types/types';
+import type { Post } from '@/types/post';
 
-// El editor arrastra Tiptap + lowlight + yjs: se carga solo en cliente y solo
-// en las rutas de edición (bundle-dynamic-imports). Sin SSR porque Tiptap ya
-// renderiza con `immediatelyRender: false`.
+// Tiptap + lowlight + yjs pesan: solo en cliente y en las rutas de edición (bundle-dynamic-imports).
 const TiptapEditor = dynamic(
   () => import('@/components/editor/TiptapEditor').then((m) => m.TiptapEditor),
   {
@@ -29,16 +27,17 @@ const TiptapEditor = dynamic(
   }
 );
 
+// Fuera del componente para que el ref callback sea estable y solo se ejecute al montar.
+function resizeTitle(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = `${el.scrollHeight}px`;
+}
+
 interface PostFormProps {
-  /** Post existente para editar; omitir para crear uno nuevo. */
   post?: Post;
 }
 
-/**
- * Página de escritura estilo Notion: título gigante + editor a ancho completo.
- * Los metadatos (slug, excerpt, cover, destacado) viven en el diálogo Ajustes
- * para no ensuciar la vista de escritura.
- */
 export function PostForm({ post }: PostFormProps) {
   const router = useRouter();
   const { create, update, remove, pending, error } = usePosts();
@@ -46,8 +45,6 @@ export function PostForm({ post }: PostFormProps) {
   const [title, setTitle] = useState(post?.title ?? '');
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? '');
   const [slug, setSlug] = useState(post?.slug ?? '');
-  // Al editar, el slug guardado manda; al crear, se deriva del título hasta
-  // que el usuario lo toque (estado derivado, sin efectos).
   const [slugTouched, setSlugTouched] = useState(post != null);
   const [coverImage, setCoverImage] = useState(post?.cover_image ?? null);
   const [featured, setFeatured] = useState(post?.featured ?? false);
@@ -58,22 +55,10 @@ export function PostForm({ post }: PostFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  // El HTML del editor vive en un ref: cambia en cada tecla y solo se lee al
-  // guardar, así el formulario no se re-renderiza mientras se escribe.
+  // En un ref y no en estado: cambia en cada tecla y re-renderizar el formulario al escribir sería caro.
   const contentRef = useRef(post?.content ?? '');
   // Valor inicial estable para el editor controlado (no se resetea al tipear).
   const [initialContent] = useState(post?.content ?? '');
-
-  const titleRef = useRef<HTMLTextAreaElement>(null);
-
-  // Auto-alto del título (multilínea como Notion, sin scrollbar interno).
-  const resizeTitle = () => {
-    const el = titleRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  };
-  useEffect(resizeTitle, []);
 
   const effectiveSlug = slugTouched ? slug : slugify(title);
 
@@ -195,11 +180,11 @@ export function PostForm({ post }: PostFormProps) {
       )}
 
       <textarea
-        ref={titleRef}
+        ref={resizeTitle}
         value={title}
         onChange={(e) => {
           setTitle(e.target.value);
-          resizeTitle();
+          resizeTitle(e.currentTarget);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.preventDefault();

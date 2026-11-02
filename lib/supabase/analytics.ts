@@ -1,20 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
-import type {
-  AnalyticsDaily,
-  AnalyticsSummary,
-  AnalyticsTopPost,
-  AnalyticsTopProject,
-} from '@/types/types';
+import type { AnalyticsData, AnalyticsSummary } from '@/types/analytics';
 
-/** Días que cubre la serie temporal del dashboard de analíticas. */
 export const ANALYTICS_RANGE_DAYS = 30;
-
-export interface AnalyticsData {
-  summary: AnalyticsSummary;
-  daily: AnalyticsDaily[];
-  topPosts: AnalyticsTopPost[];
-  topProjects: AnalyticsTopProject[];
-}
 
 const EMPTY_SUMMARY: AnalyticsSummary = {
   total_views: 0,
@@ -24,10 +11,7 @@ const EMPTY_SUMMARY: AnalyticsSummary = {
   project_views: 0,
 };
 
-/**
- * Carga los agregados de las vistas SQL (solo servidor). Las vistas usan
- * security_invoker, por lo que requieren la sesión autenticada del dashboard.
- */
+// Las vistas usan security_invoker: devuelven lo que la RLS permita al rol que consulta.
 export async function getAnalytics(): Promise<AnalyticsData> {
   const supabase = await createClient();
 
@@ -58,7 +42,6 @@ export async function getAnalytics(): Promise<AnalyticsData> {
   };
 }
 
-/** Total de visitas para la tarjeta del dashboard principal. */
 export async function getTotalViews(): Promise<number> {
   const supabase = await createClient();
   const { data } = await supabase.from('analytics_summary').select('total_views').maybeSingle();

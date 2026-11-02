@@ -1,9 +1,6 @@
 'use client';
 
-export interface DailyViews {
-  day: string; // YYYY-MM-DD
-  views: number;
-}
+import type { DailyViews } from '@/types/analytics';
 
 interface ViewsChartProps {
   data: DailyViews[];
@@ -19,25 +16,18 @@ function formatDay(day: string): string {
   return DAY_FORMAT.format(new Date(`${day}T00:00:00Z`));
 }
 
-/** Redondea el máximo del eje Y a un número limpio (5, 10, 50, 100…). */
 function niceMax(max: number): number {
   if (max <= 5) return 5;
   const magnitude = 10 ** Math.floor(Math.log10(max));
   return Math.ceil(max / magnitude) * magnitude;
 }
 
-/**
- * Barras de visitas por día (serie única, sin leyenda: el título de la carta
- * la nombra). Cada barra lleva su tooltip en hover/focus; los valores también
- * están disponibles en una tabla solo para lectores de pantalla.
- */
 export function ViewsChart({ data }: ViewsChartProps) {
   const max = niceMax(Math.max(...data.map((d) => d.views), 0));
 
   return (
     <div>
       <div className="relative h-40" aria-hidden="true">
-        {/* Gridlines hairline recesivas: tope, medio y línea base */}
         {[0, 0.5, 1].map((fraction) => (
           <div
             key={fraction}
@@ -45,7 +35,6 @@ export function ViewsChart({ data }: ViewsChartProps) {
             style={{ top: `${fraction * 100}%` }}
           />
         ))}
-        {/* Ticks del eje Y */}
         <span className="absolute -top-2 right-0 text-[10px] tabular-nums text-muted">
           {max.toLocaleString('es')}
         </span>
@@ -62,7 +51,6 @@ export function ViewsChart({ data }: ViewsChartProps) {
                   style={{ height: `max(${(views / max) * 100}%, 2px)` }}
                 />
               ) : null}
-              {/* Tooltip: el valor manda, la fecha acompaña */}
               <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs shadow-sm group-hover:block">
                 <span className="font-semibold text-foreground">
                   {views.toLocaleString('es')} {views === 1 ? 'visita' : 'visitas'}

@@ -1,12 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import type { Database } from '@/types/types';
+import type { Database } from '@/types/database';
 
-/**
- * Cliente Supabase para Server Components, Server Actions y Route Handlers.
- * Con Fluid Compute no se debe guardar este cliente en una variable global:
- * hay que crear uno nuevo en cada request porque depende de las cookies.
- */
+// Con Fluid Compute no se guarda en una variable global: depende de las cookies de cada request.
 export async function createClient() {
   const cookieStore = await cookies();
 
@@ -24,8 +20,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // setAll fue llamado desde un Server Component. Se puede ignorar
-            // si el proxy (middleware) está refrescando las sesiones.
+            // Los Server Components no pueden escribir cookies; se ignora.
           }
         },
       },

@@ -10,15 +10,10 @@ interface DialogProps {
   title?: string;
   description?: string;
   children?: ReactNode;
-  /** Acciones del pie (p. ej. botones Cancelar / Confirmar). */
   footer?: ReactNode;
 }
 
-/**
- * Modal accesible construido sobre el elemento nativo <dialog>, que aporta
- * gratis el focus-trap, el cierre con Escape y la capa de fondo (::backdrop).
- * Minimalista: una sola superficie, sin tarjetas anidadas.
- */
+// <dialog> nativo: aporta focus-trap, cierre con Escape y ::backdrop sin código propio.
 export function Dialog({
   open,
   onClose,
@@ -29,7 +24,7 @@ export function Dialog({
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
-  // Sincroniza la prop `open` con los métodos imperativos del <dialog>.
+  // Sincroniza la API imperativa del <dialog> (showModal/close) con la prop open.
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
@@ -43,9 +38,7 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
-      // `onClose` del <dialog> cubre Escape y el cierre nativo.
       onClose={onClose}
-      // Cierra al hacer clic en el backdrop (fuera del contenido interno).
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}

@@ -1,16 +1,14 @@
 import type { Metadata } from 'next';
 import { BarChart3, Eye, FileText, FolderGit2, Users } from 'lucide-react';
 import { getAnalytics, ANALYTICS_RANGE_DAYS } from '@/lib/supabase/analytics';
-import type { AnalyticsData } from '@/lib/supabase/analytics';
+import type { AnalyticsData, DailyViews } from '@/types/analytics';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ViewsChart } from '@/components/analytics/ViewsChart';
-import type { DailyViews } from '@/components/analytics/ViewsChart';
 import { TopResourceList } from '@/components/analytics/TopResourceList';
 
 export const metadata: Metadata = { title: 'Analíticas' };
 
-/** Serie completa de los últimos N días: los días sin visitas cuentan cero. */
 function buildDailySeries(daily: AnalyticsData['daily']): DailyViews[] {
   const viewsByDay = new Map<string, number>();
   for (const row of daily) {
@@ -28,7 +26,6 @@ function buildDailySeries(daily: AnalyticsData['daily']): DailyViews[] {
   return series;
 }
 
-/** Visitas del sitio público: totales, serie de 30 días y recursos más vistos. */
 export default async function AnalyticsPage() {
   let data: AnalyticsData;
   try {

@@ -2,30 +2,18 @@
 
 import {
   forwardRef,
-  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
-import type { LucideIcon } from 'lucide-react';
-import type { Editor, Range } from '@tiptap/core';
+import type { SlashCommandItem } from '@/types/editor';
 
-export interface SlashCommandItem {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  keywords?: string[];
-  command: (opts: { editor: Editor; range: Range }) => void;
-}
-
-/** Props que el plugin Suggestion inyecta en el renderer de React. */
 export interface SlashCommandMenuProps {
   items: SlashCommandItem[];
   command: (item: SlashCommandItem) => void;
 }
 
-/** API imperativa que consume `onKeyDown` del plugin Suggestion. */
 export interface SlashCommandMenuRef {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 }
@@ -36,9 +24,12 @@ export const SlashCommandMenu = forwardRef<SlashCommandMenuRef, SlashCommandMenu
     const listRef = useRef<HTMLDivElement>(null);
 
     // Al cambiar el filtro, la lista se reordena: vuelve al primer resultado.
-    useEffect(() => setSelectedIndex(0), [items]);
+    const [prevItems, setPrevItems] = useState(items);
+    if (items !== prevItems) {
+      setPrevItems(items);
+      setSelectedIndex(0);
+    }
 
-    // Mantén el ítem seleccionado a la vista al navegar con el teclado.
     useLayoutEffect(() => {
       listRef.current?.children[selectedIndex]?.scrollIntoView({ block: 'nearest' });
     }, [selectedIndex]);

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useListFilters } from '@/lib/hooks/useListFilters';
+import { useListFilters } from '@/hooks/useListFilters';
 
 interface PaginationProps {
   page: number;
@@ -10,7 +10,6 @@ interface PaginationProps {
   total: number;
 }
 
-/** Ventana compacta de páginas: 1 … (actual±1) … última. */
 function pageItems(current: number, count: number): (number | '…')[] {
   if (count <= 7) return Array.from({ length: count }, (_, i) => i + 1);
 
@@ -26,7 +25,6 @@ function pageItems(current: number, count: number): (number | '…')[] {
   return items;
 }
 
-/** Pie del listado: contador de resultados + navegación numerada por URL. */
 export function Pagination({ page, pageCount, total }: PaginationProps) {
   const { buildHref } = useListFilters();
 

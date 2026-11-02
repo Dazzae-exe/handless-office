@@ -1,7 +1,7 @@
 'use client';
 
-import { useListFilters } from '@/lib/hooks/useListFilters';
-import type { StatusFilter } from '@/lib/list-params';
+import { useListFilters } from '@/hooks/useListFilters';
+import type { StatusFilter } from '@/types/list-params';
 
 const OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'all', label: 'Todos' },
@@ -9,7 +9,6 @@ const OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'draft', label: 'Borradores' },
 ];
 
-/** Control segmentado Todos/Publicados/Borradores que escribe `?status=` . */
 export function StatusFilterTabs() {
   const { searchParams, setFilters } = useListFilters();
   const current = (searchParams.get('status') as StatusFilter | null) ?? 'all';

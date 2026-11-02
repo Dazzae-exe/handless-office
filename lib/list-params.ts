@@ -1,25 +1,9 @@
-/**
- * Estado de los listados (filtros, búsqueda, paginación) codificado en la URL
- * (?status=draft&q=…&tag=…&page=2) y resuelto en el servidor con Supabase.
- */
+import type { ListParams, StatusFilter } from '@/types/list-params';
 
 export const POSTS_PAGE_SIZE = 10;
 export const PROJECTS_PAGE_SIZE = 9;
 
-export type StatusFilter = 'all' | 'published' | 'draft';
-
-export interface ListParams {
-  status: StatusFilter;
-  /** Término de búsqueda ya saneado para interpolarse en un patrón ilike. */
-  q: string;
-  page: number;
-  tag: string | null;
-}
-
-/**
- * Sanea el término para el `or(ilike)` de PostgREST: quita comodines de LIKE
- * (%, _) y caracteres que rompen la sintaxis del filtro (comillas, backslash).
- */
+// Para el or(ilike) de PostgREST: quita comodines LIKE (%, _) y caracteres que rompen el filtro.
 export function sanitizeSearch(raw: string): string {
   return raw.replace(/[%_"\\]/g, '').trim().slice(0, 100);
 }

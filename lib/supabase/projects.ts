@@ -1,21 +1,12 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Project, ProjectInsert, ProjectUpdate } from '@/types/types';
-
-/** Campos del formulario; `user_id` se completa con la sesión al crear. */
-export type ProjectFormData = Omit<ProjectInsert, 'user_id'>;
+import type { Project, ProjectFormData, ProjectUpdate } from '@/types/project';
 
 export async function createProject(data: ProjectFormData): Promise<Project> {
   const supabase = createClient();
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-  if (userError || !user) throw new Error('Debes iniciar sesión para crear proyectos.');
-
   const { data: project, error } = await supabase
     .from('projects')
-    .insert({ ...data, user_id: user.id })
+    .insert(data)
     .select()
     .single();
   if (error) throw new Error(error.message);

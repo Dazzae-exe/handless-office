@@ -1,11 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr';
-import type { Database } from '@/types/types';
+import type { Database } from '@/types/database';
 
-/**
- * Cliente Supabase para componentes del lado del cliente ('use client').
- * createBrowserClient usa un patrón singleton internamente, por lo que es
- * seguro llamarlo en cada render.
- */
+// createBrowserClient es singleton internamente: es seguro llamarlo en cada render.
 export function createClient() {
   return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

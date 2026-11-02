@@ -11,7 +11,6 @@ interface ProjectEditPageProps {
   params: Promise<{ id: string }>;
 }
 
-/** Página de edición: carga el proyecto en el servidor y monta el formulario. */
 export default async function ProjectEditPage({ params }: ProjectEditPageProps) {
   const { id } = await params;
   // Evita un error de Postgres (uuid inválido) con ids arbitrarios en la URL.

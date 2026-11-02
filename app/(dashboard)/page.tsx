@@ -4,21 +4,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getTotalViews } from '@/lib/supabase/analytics';
 import { PageHeader } from '@/components/common/PageHeader';
 
-/**
- * Inicio del dashboard. Resumen con tarjetas de métricas (hermanas, sin anidar)
- * cargadas en el servidor: conteos de posts/proyectos y visitas del sitio.
- */
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims.sub ?? '';
-
   const count = (table: 'posts' | 'projects', published?: boolean) => {
-    let query = supabase
-      .from(table)
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+    let query = supabase.from(table).select('*', { count: 'exact', head: true });
     if (published !== undefined) query = query.eq('published', published);
     return query;
   };

@@ -37,7 +37,6 @@ interface ButtonLinkProps extends ComponentProps<typeof Link> {
   variant?: Variant;
 }
 
-/** Enlace de navegación con la apariencia exacta del Button. */
 export function ButtonLink({ variant = 'primary', className = '', ...props }: ButtonLinkProps) {
   return <Link className={`${base} ${variants[variant]} ${className}`} {...props} />;
 }

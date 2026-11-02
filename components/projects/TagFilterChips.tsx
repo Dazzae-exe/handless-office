@@ -1,13 +1,11 @@
 'use client';
 
-import { useListFilters } from '@/lib/hooks/useListFilters';
+import { useListFilters } from '@/hooks/useListFilters';
 
 interface TagFilterChipsProps {
-  /** Todos los tags del usuario (agregados en el servidor). */
   tags: string[];
 }
 
-/** Chips clicables que escriben `?tag=` (toggle; la consulta corre en servidor). */
 export function TagFilterChips({ tags }: TagFilterChipsProps) {
   const { searchParams, setFilters } = useListFilters();
   const activeTag = searchParams.get('tag');

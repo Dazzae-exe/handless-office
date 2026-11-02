@@ -19,17 +19,15 @@ import {
 
 import { SlashCommandMenu } from '@/components/editor/SlashCommandMenu';
 import type {
-  SlashCommandItem,
   SlashCommandMenuRef,
   SlashCommandMenuProps,
 } from '@/components/editor/SlashCommandMenu';
+import type { SlashCommandItem } from '@/types/editor';
 
 export interface SlashCommandOptions {
-  /** Abre el selector de archivos para subir una imagen (lo provee el editor). */
   requestImageUpload: () => void;
 }
 
-/** Catálogo completo de bloques ofrecidos por el menú "/". */
 function buildItems(options: SlashCommandOptions): SlashCommandItem[] {
   return [
     {
@@ -163,11 +161,6 @@ const renderSlashMenu: SlashRenderer = () => {
   };
 };
 
-/**
- * Menú de comandos "/" estilo Notion. Construido sobre la utilidad Suggestion
- * de Tiptap: al escribir "/" al inicio de una línea aparece un popup filtrable
- * de bloques que se insertan al seleccionarlos.
- */
 export const SlashCommand = Extension.create<SlashCommandOptions>({
   name: 'slashCommand',
 
@@ -183,7 +176,7 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
       Suggestion<SlashCommandItem>({
         editor: this.editor,
         char: '/',
-        // Solo dispara al inicio de un bloque vacío o tras un espacio, como Notion.
+        // allowedPrefixes por defecto ([' ']): el "/" solo dispara al inicio del bloque o tras un espacio, como Notion.
         allowSpaces: false,
         startOfLine: false,
         items: ({ query }) => filterItems(buildItems(options), query),

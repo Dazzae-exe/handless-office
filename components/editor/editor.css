@@ -1,7 +1,3 @@
-/* ─── Tiptap editor · estilo Notion sobre los tokens de diseño ──────────────
-   Minimalista: una sola superficie, bordes 1px, radios 11px, acento púrpura.
-   Todo se apoya en las variables de :root/.dark definidas en globals.css. */
-
 .tiptap-editor {
   min-height: 24rem;
   outline: none;
@@ -14,12 +10,10 @@
   min-height: 0;
 }
 
-/* Espaciado vertical uniforme entre bloques. */
 .tiptap-editor > * + * {
   margin-top: 0.75em;
 }
 
-/* Placeholder del bloque activo vacío. */
 .tiptap-editor .is-empty::before {
   content: attr(data-placeholder);
   color: var(--muted);
@@ -28,7 +22,6 @@
   pointer-events: none;
 }
 
-/* Encabezados */
 .tiptap-editor h1 {
   font-size: 1.875rem;
   font-weight: 700;
@@ -52,7 +45,6 @@
   margin-top: 0;
 }
 
-/* Listas */
 .tiptap-editor ul,
 .tiptap-editor ol {
   padding-left: 1.4rem;
@@ -67,7 +59,6 @@
   margin: 0;
 }
 
-/* Lista de tareas */
 .tiptap-editor ul[data-type='taskList'] {
   list-style: none;
   padding-left: 0.25rem;
@@ -92,7 +83,6 @@
   text-decoration: line-through;
 }
 
-/* Cita */
 .tiptap-editor blockquote {
   border-left: 3px solid var(--accent);
   padding-left: 1rem;
@@ -100,7 +90,6 @@
   font-style: italic;
 }
 
-/* Código en línea */
 .tiptap-editor code {
   background: var(--surface-hover);
   border: 1px solid var(--border);
@@ -110,7 +99,6 @@
   font-size: 0.875em;
 }
 
-/* Bloque de código */
 .tiptap-editor pre {
   background: #0a0a0a;
   color: #f4f4f5;
@@ -130,7 +118,6 @@
   color: inherit;
 }
 
-/* Enlaces */
 .tiptap-editor .tiptap-link {
   color: var(--accent);
   text-decoration: underline;
@@ -138,7 +125,6 @@
   cursor: pointer;
 }
 
-/* Imágenes */
 .tiptap-editor .tiptap-image {
   max-width: 100%;
   height: auto;
@@ -151,19 +137,16 @@
   outline-offset: 2px;
 }
 
-/* Separador */
 .tiptap-editor hr {
   border: none;
   border-top: 1px solid var(--border);
   margin: 1.5em 0;
 }
 
-/* Cursor de arrastre/hueco de ProseMirror */
 .tiptap-editor .ProseMirror-gapcursor:after {
   border-top-color: var(--foreground);
 }
 
-/* ─── Resaltado de sintaxis (lowlight / highlight.js) ─────────────────────── */
 .tiptap-editor pre .hljs-comment,
 .tiptap-editor pre .hljs-quote {
   color: #8b949e;
@@ -187,7 +170,6 @@
   color: #d2a8ff;
 }
 
-/* ─── Handle de arrastre por bloque (estilo Notion) ───────────────────────── */
 .tiptap-drag-handle {
   display: flex;
   align-items: center;

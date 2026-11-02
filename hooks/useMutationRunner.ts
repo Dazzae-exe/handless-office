@@ -3,14 +3,6 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-/**
- * Runner compartido para las mutaciones del CRUD (posts, proyectos). Ejecuta
- * la operación con estados `pending`/`error` y llama a `router.refresh()` al
- * terminar para revalidar los Server Components que cargaron los datos.
- *
- * Devuelve el resultado de la operación o `null` si falló (el mensaje queda
- * en `error` para mostrarlo inline).
- */
 export function useMutationRunner() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -22,6 +14,7 @@ export function useMutationRunner() {
       setError(null);
       try {
         const result = await op();
+        // Revalida los Server Components que cargaron los datos.
         router.refresh();
         return result;
       } catch (e) {
