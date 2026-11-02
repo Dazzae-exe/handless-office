@@ -1,0 +1,145 @@
+{
+  "project_name": "portfolio-html-editor",
+  "description": "Dashboard serverless para escribir y gestionar posts y proyectos de un portfolio con un editor HTML (TipTap 3), guardados en Supabase y con analíticas de vistas.",
+  "feature_template": {
+    "id": "F-000",
+    "name": "Nombre corto de la feature",
+    "assigned_to": null,
+    "status": "pending | in_progress | blocked | in_review | done",
+    "tasks": [
+      "[ ] Tarea pendiente",
+      "[-] Tarea realizada"
+    ],
+    "exploration": false
+  },
+  "features": [
+    {
+      "id": "F-001",
+      "name": "Eliminar comentarios innecesarios del código",
+      "assigned_to": null,
+      "status": "done",
+      "tasks": [
+        "[-] Eliminar comentarios redundantes (que repiten lo que dice el código) en app/ (layout.tsx, globals.css, (dashboard)/layout.tsx, page.tsx, posts/*, projects/*, analytics/page.tsx)",
+        "[-] Eliminar comentarios redundantes en components/ (common, layout, posts, projects, analytics, editor incluido editor.css y extensions/slash-command.ts)",
+        "[-] Eliminar comentarios redundantes en lib/ (list-params.ts, supabase/*.ts), conservando solo los que explican el porqué (p. ej. límites del bucket en storage.ts)",
+        "[-] Eliminar comentarios redundantes en hooks/ (useListFilters.ts, useMutationRunner.ts), utils/ (theme/*, validators/*) y types/types.ts",
+        "[-] Eliminar comentarios que referencian auth/proxy/sesión obsoletos (coordinar con F-004 para no duplicar trabajo)",
+        "[-] Verificar que pnpm lint y pnpm build pasan sin errores"
+      ],
+      "exploration": false
+    },
+    {
+      "id": "F-002",
+      "name": "Conexión con cualquier base de datos / tabla de Supabase",
+      "assigned_to": null,
+      "status": "pending",
+      "tasks": [
+        "[ ] Exploración: definir estrategia para nombres de tablas/vistas/bucket configurables (variables de entorno vs archivo de config) y su impacto en el tipado Database de supabase-js; registrar en docs/exploraciones/explorer.md",
+        "[ ] Crear módulo de configuración tipado (p. ej. lib/supabase/tables.ts) que lea de env NEXT_PUBLIC_SUPABASE_POSTS_TABLE, _PROJECTS_TABLE, _IMAGES_TABLE, prefijo de vistas analytics y bucket de storage, con valores por defecto actuales ('posts', 'projects', 'images', 'analytics_*')",
+        "[ ] Añadir las nuevas variables a .env.example con documentación breve",
+        "[ ] Reemplazar los nombres hardcodeados en lib/supabase/posts.ts, projects.ts, storage.ts (tabla images y EDITOR_IMAGE_BUCKET) y analytics.ts por el módulo de configuración",
+        "[ ] Reemplazar los nombres hardcodeados en app/(dashboard)/page.tsx, posts/page.tsx, posts/[id]/page.tsx, projects/page.tsx y projects/[id]/page.tsx",
+        "[ ] Ajustar el tipado (types) para que las consultas sigan tipadas estrictamente sin any cuando el nombre de tabla es dinámico",
+        "[ ] Eliminar lib/supabase.ts (cliente sin uso con ANON_KEY) y unificar en lib/supabase/client.ts y server.ts con PUBLISHABLE_KEY; quitar NEXT_PUBLIC_SUPABASE_ANON_KEY de .env.example",
+        "[ ] Documentar en README.md el esquema mínimo esperado (columnas, vistas de analytics, bucket, RLS) y cómo apuntar a tablas propias; verificar pnpm lint y pnpm build"
+      ],
+      "exploration": true
+    },
+    {
+      "id": "F-003",
+      "name": "404 y páginas de error",
+      "assigned_to": null,
+      "status": "done",
+      "tasks": [
+        "[-] Crear app/not-found.tsx (404 global) reutilizando components/common/EmptyState y Button con enlace al inicio",
+        "[-] Crear app/(dashboard)/not-found.tsx para que notFound() de posts/[id] y projects/[id] se renderice dentro del AppShell",
+        "[-] Crear app/(dashboard)/error.tsx (Client Component) con mensaje accesible (role=alert) y botón de reintentar usando la función de reset del error boundary",
+        "[-] Crear app/global-error.tsx para errores del root layout (con <html> y <body> propios)",
+        "[ ] Verificar manualmente rutas inexistentes y IDs inválidos; pnpm lint y pnpm build"
+      ],
+      "exploration": false
+    },
+    {
+      "id": "F-004",
+      "name": "Limpiar código de autenticación",
+      "assigned_to": null,
+      "status": "done",
+      "tasks": [
+        "[-] Quitar import de signout desde '@/app/(auth)/actions' y su botón en components/layout/Sidebar.tsx (rompe el build)",
+        "[-] Eliminar lib/supabase/proxy.ts (updateSession, PUBLIC_ROUTES, redirect a /login) y cualquier proxy/middleware que lo use",
+        "[-] Eliminar utils/validators/auth.ts y la interfaz User de types/types.ts",
+        "[-] Quitar supabase.auth.getClaims() de app/(dashboard)/layout.tsx y del Header si recibe datos de usuario",
+        "[-] Quitar getClaims() y filtros .eq('user_id', ...) en app/(dashboard)/page.tsx, posts/page.tsx y projects/page.tsx",
+        "[-] Quitar supabase.auth.getUser() y user_id en inserts de lib/supabase/posts.ts, projects.ts y storage.ts; ajustar PostFormData/ProjectFormData y tipos Insert/Update",
+        "[-] Revisar lib/supabase/server.ts para eliminar la lógica de cookies/sesión que ya no aplica (mantener el cliente)",
+        "[-] Registrar en docs/decisiones/decisions.md la decisión sobre la columna user_id y RLS sin auth; verificar pnpm lint y pnpm build"
+      ],
+      "exploration": false
+    },
+    {
+      "id": "F-005",
+      "name": "Refactorización de los componentes siguiendo las practicas y arquitectura",
+      "assigned_to": null,
+      "status": "done",
+      "tasks": [
+        "[-] Dividir types/types.ts en un archivo por tipo (database.ts, json.ts, post.ts, project.ts, tag.ts, image.ts, analytics.ts) y actualizar todos los imports",
+        "[-] Mover tipos sueltos a types/: StatusFilter y ListParams (lib/list-params.ts), PostFormData, ProjectFormData, AnalyticsData, EditorContentType, UploadedImage, TopResource, DailyViews, SlashCommandItem",
+        "[-] Eliminar useEffect(resizeTitle) en components/posts/PostForm.tsx y ProjectForm.tsx (usar CSS field-sizing o ref callback); extraer la lógica compartida a un hook en hooks/ si es necesario",
+        "[-] Eliminar useEffect en components/common/Dialog.tsx y SearchInput.tsx (ref callback / handlers de eventos)",
+        "[-] Eliminar useEffect en components/editor/SlashCommandMenu.tsx (reset de selectedIndex con key o derivado del render) y revisar los 3 useEffect de TiptapEditor.tsx (usar opciones/eventos de useEditor)",
+        "[-] Revisar useEffect en components/layout/AppShell.tsx y utils/theme/ThemeProvider.tsx; mantener solo si sincronizan un sistema externo y documentar el porqué",
+        "[ ] Mover components/editor/ y components/projects/TagFilterChips.tsx según la arquitectura de CLAUDE.md si corresponde; reducir funciones definidas dentro de componentes moviendo funciones puras a utils/",
+        "[-] Mover ThemeProvider/useTheme de utils/theme/ a la carpeta que corresponda (hooks/ o components/) ya que utils/ es solo para funciones puras",
+        "[-] Verificar ausencia de any/undefined innecesarios con tsc estricto; pnpm lint y pnpm build"
+      ],
+      "exploration": false
+    },
+    {
+      "id": "F-006",
+      "name": "Integración de panel de analíticas, vistas y visitas",
+      "assigned_to": null,
+      "status": "pending",
+      "tasks": [
+        "[ ] Exploración: definir cómo el sitio público registra vistas en analytics_events (route handler público vs insert directo con RLS) y revisar las vistas analytics_daily/summary/top_*; registrar en docs/exploraciones/explorer.md",
+        "[ ] Crear route handler app/api/analytics/route.ts (POST) que valide resource_type/resource_id y registre el evento en la tabla configurada (F-002)",
+        "[ ] Mover buildDailySeries de app/(dashboard)/analytics/page.tsx a utils/ como función pura",
+        "[ ] Añadir selector de rango (7/30/90 días) vía searchParams en analytics/page.tsx y parametrizar getAnalytics en lib/supabase/analytics.ts",
+        "[ ] Mostrar visitas por post/proyecto en PostCard/ProjectCard o en la página de edición",
+        "[ ] Crear app/(dashboard)/analytics/loading.tsx con skeleton accesible",
+        "[ ] Documentar en README.md cómo integrar el tracking desde el portfolio público; pnpm lint y pnpm build"
+      ],
+      "exploration": true
+    },
+    {
+      "id": "F-007",
+      "name": "Integración de agente de AI que escribe contenido a partir del titulo del post y un prompt",
+      "assigned_to": null,
+      "status": "pending",
+      "tasks": [
+        "[ ] Exploración: elegir proveedor/SDK de AI (configurable por env, MIT-friendly), estrategia de streaming y formato de salida (HTML/JSON de TipTap); registrar en docs/exploraciones/explorer.md",
+        "[ ] Añadir variables de entorno del proveedor (API key server-only, modelo) a .env.example",
+        "[ ] Crear módulo en lib/ai/ que construya el prompt a partir de título + prompt del usuario y llame al proveedor desde el servidor",
+        "[ ] Crear route handler app/api/ai/generate/route.ts con validación de entrada, límite de longitud y respuesta en streaming",
+        "[ ] Crear tipos en types/ (AiGenerateRequest, AiGenerateResponse) en archivos separados",
+        "[ ] Crear hook hooks/useAiGenerate.ts que consuma el stream y exponga estado de carga/error sin useEffect",
+        "[ ] Añadir UI en components/posts/PostForm.tsx (botón + Dialog con input de prompt) que inserte el contenido generado en TiptapEditor",
+        "[ ] Manejar errores (sin API key, rate limit) con mensajes accesibles; pnpm lint y pnpm build"
+      ],
+      "exploration": true
+    },
+    {
+      "id": "F-008",
+      "name": "Arreglar imports rotos de lib/hooks",
+      "assigned_to": null,
+      "status": "done",
+      "tasks": [
+        "[-] Reapuntar @/lib/hooks/useListFilters a @/hooks/useListFilters en Pagination, SearchInput, StatusFilterTabs y TagFilterChips",
+        "[-] Restaurar hooks/usePosts.ts y hooks/useProjects.ts desde 37b86db sobre useMutationRunner, sin auth ni user_id",
+        "[-] Reapuntar los imports de PostForm y ProjectForm a @/hooks/usePosts y @/hooks/useProjects",
+        "[-] Documentar en memory.md y AGENTS.md",
+        "[-] Verificar pnpm lint, npx tsc --noEmit y pnpm build"
+      ],
+      "exploration": false
+    }
+  ]
+}
