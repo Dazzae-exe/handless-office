@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { FileText, Plus, Search } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import { TABLES } from '@/lib/supabase/tables';
 import { parseListParams, POSTS_PAGE_SIZE } from '@/lib/list-params';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ButtonLink } from '@/components/common/Button';
@@ -21,9 +22,8 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
   const { status, q, page } = parseListParams(await searchParams);
   const supabase = await createClient();
 
-  let query = supabase.from('posts').select('*', { count: 'exact' });
+  let query = supabase.from(TABLES.posts).select('*', { count: 'exact' });
   if (status !== 'all') query = query.eq('published', status === 'published');
-  // `q` llega saneado de parseListParams (sin comodines ni comillas).
   if (q) query = query.or(`title.ilike."%${q}%",excerpt.ilike."%${q}%"`);
 
   const from = (page - 1) * POSTS_PAGE_SIZE;

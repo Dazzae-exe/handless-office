@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { BarChart3, Eye, FileText, FolderGit2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getTotalViews } from '@/lib/supabase/analytics';
+import { TABLES } from '@/lib/supabase/tables';
 import { PageHeader } from '@/components/common/PageHeader';
 
 export default async function DashboardPage() {
@@ -15,10 +16,10 @@ export default async function DashboardPage() {
 
   const [postsRes, projectsRes, publishedPostsRes, publishedProjectsRes, totalViews] =
     await Promise.all([
-      count('posts'),
-      count('projects'),
-      count('posts', true),
-      count('projects', true),
+      count(TABLES.posts),
+      count(TABLES.projects),
+      count(TABLES.posts, true),
+      count(TABLES.projects, true),
       getTotalViews(),
     ]);
 

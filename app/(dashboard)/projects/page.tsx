@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { FolderGit2, Plus, Search } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import { TABLES } from '@/lib/supabase/tables';
 import { parseListParams, PROJECTS_PAGE_SIZE } from '@/lib/list-params';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ButtonLink } from '@/components/common/Button';
@@ -22,9 +23,8 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   const { status, q, page, tag } = parseListParams(await searchParams);
   const supabase = await createClient();
 
-  let query = supabase.from('projects').select('*', { count: 'exact' });
+  let query = supabase.from(TABLES.projects).select('*', { count: 'exact' });
   if (status !== 'all') query = query.eq('published', status === 'published');
-  // `q` llega saneado de parseListParams (sin comodines ni comillas).
   if (q) query = query.or(`title.ilike."%${q}%",description.ilike."%${q}%"`);
   if (tag) query = query.contains('tags', [tag]);
 
@@ -32,7 +32,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
 
   const [listRes, tagsRes] = await Promise.all([
     query.order('created_at', { ascending: false }).range(from, from + PROJECTS_PAGE_SIZE - 1),
-    supabase.from('projects').select('tags'),
+    supabase.from(TABLES.projects).select('tags'),
   ]);
 
   // Página fuera de rango (URL editada a mano): vuelve a la página 1.

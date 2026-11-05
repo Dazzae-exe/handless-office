@@ -1,13 +1,12 @@
 import { createClient } from '@/lib/supabase/client';
+import { TABLES } from '@/lib/supabase/tables';
 import type { EditorContentType } from '@/types/editor';
 import type { UploadedImage } from '@/types/image';
 
-export const EDITOR_IMAGE_BUCKET = 'tiptap_content';
+export const EDITOR_IMAGE_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || 'tiptap_content';
 
-// Debe coincidir con el `file_size_limit` del bucket en Supabase (5 MB).
-export const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+export const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
 
-// Debe coincidir con `allowed_mime_types` del bucket en Supabase.
 export const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
   'image/png',
@@ -22,7 +21,7 @@ export function validateImageFile(file: File): string | null {
     return 'Formato no admitido. Usa JPG, PNG, WebP, GIF, SVG o AVIF.';
   }
   if (file.size > MAX_IMAGE_SIZE) {
-    return 'La imagen supera el límite de 5 MB.';
+    return 'La imagen supera el límite de 1 MB.';
   }
   return null;
 }
@@ -55,14 +54,19 @@ export async function uploadEditorImage(
     data: { publicUrl },
   } = supabase.storage.from(EDITOR_IMAGE_BUCKET).getPublicUrl(path);
 
-  // Registro de metadata (best-effort): no bloquea la inserción en el editor.
-  await supabase.from('images').insert({
-    file_path: path,
-    file_name: file.name,
-    file_size: file.size,
-    mime_type: file.type,
-    alt_text: null,
-  });
+  // El query builder de Supabase es lazy: sin `.then()` la petición no se envía.
+  void supabase
+    .from(TABLES.images)
+    .insert({
+      file_path: path,
+      file_name: file.name,
+      file_size: file.size,
+      mime_type: file.type,
+      alt_text: null,
+    })
+    .then(({ error }) => {
+      if (error) console.warn(`No se pudo registrar la imagen ${path}: ${error.message}`);
+    });
 
   return { url: publicUrl, path };
 }
