@@ -1,4 +1,4 @@
-# Blog Dashboard
+# Hand less office
 
 A modern, serverless dashboard for authoring and managing **blog posts** and **project posts**, built around a Notion-style rich-text editor. It's the tool I use to write and publish the content for my personal portfolio — open-sourced so you can see how it's put together.
 
