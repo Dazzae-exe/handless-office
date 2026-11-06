@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/client';
+import { TABLES } from '@/lib/supabase/tables';
 import type { Project, ProjectFormData, ProjectUpdate } from '@/types/project';
 
 export async function createProject(data: ProjectFormData): Promise<Project> {
   const supabase = createClient();
 
   const { data: project, error } = await supabase
-    .from('projects')
+    .from(TABLES.projects)
     .insert(data)
     .select()
     .single();
@@ -17,7 +18,7 @@ export async function updateProject(id: string, data: ProjectUpdate): Promise<Pr
   const supabase = createClient();
 
   const { data: project, error } = await supabase
-    .from('projects')
+    .from(TABLES.projects)
     .update(data)
     .eq('id', id)
     .select()
@@ -29,6 +30,6 @@ export async function updateProject(id: string, data: ProjectUpdate): Promise<Pr
 export async function deleteProject(id: string): Promise<void> {
   const supabase = createClient();
 
-  const { error } = await supabase.from('projects').delete().eq('id', id);
+  const { error } = await supabase.from(TABLES.projects).delete().eq('id', id);
   if (error) throw new Error(error.message);
 }

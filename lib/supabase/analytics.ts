@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { VIEWS } from '@/lib/supabase/tables';
 import type { AnalyticsData, AnalyticsSummary } from '@/types/analytics';
 
 export const ANALYTICS_RANGE_DAYS = 30;
@@ -11,7 +12,6 @@ const EMPTY_SUMMARY: AnalyticsSummary = {
   project_views: 0,
 };
 
-// Las vistas usan security_invoker: devuelven lo que la RLS permita al rol que consulta.
 export async function getAnalytics(): Promise<AnalyticsData> {
   const supabase = await createClient();
 
@@ -20,11 +20,11 @@ export async function getAnalytics(): Promise<AnalyticsData> {
   const sinceDay = since.toISOString().slice(0, 10);
 
   const [summaryRes, dailyRes, topPostsRes, topProjectsRes] = await Promise.all([
-    supabase.from('analytics_summary').select('*').maybeSingle(),
-    supabase.from('analytics_daily').select('*').gte('day', sinceDay).order('day'),
-    supabase.from('analytics_top_posts').select('*').order('views', { ascending: false }).limit(5),
+    supabase.from(VIEWS.summary).select('*').maybeSingle(),
+    supabase.from(VIEWS.daily).select('*').gte('day', sinceDay).order('day'),
+    supabase.from(VIEWS.topPosts).select('*').order('views', { ascending: false }).limit(5),
     supabase
-      .from('analytics_top_projects')
+      .from(VIEWS.topProjects)
       .select('*')
       .order('views', { ascending: false })
       .limit(5),
@@ -44,6 +44,6 @@ export async function getAnalytics(): Promise<AnalyticsData> {
 
 export async function getTotalViews(): Promise<number> {
   const supabase = await createClient();
-  const { data } = await supabase.from('analytics_summary').select('total_views').maybeSingle();
+  const { data } = await supabase.from(VIEWS.summary).select('total_views').maybeSingle();
   return data?.total_views ?? 0;
 }

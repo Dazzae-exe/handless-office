@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { TABLES } from '@/lib/supabase/tables';
 import { PostForm } from '@/components/posts/PostForm';
 
 export const metadata: Metadata = { title: 'Editar post' };
@@ -13,11 +14,10 @@ interface PostEditPageProps {
 
 export default async function PostEditPage({ params }: PostEditPageProps) {
   const { id } = await params;
-  // Evita un error de Postgres (uuid inválido) con ids arbitrarios en la URL.
   if (!UUID_RE.test(id)) notFound();
 
   const supabase = await createClient();
-  const { data: post } = await supabase.from('posts').select().eq('id', id).maybeSingle();
+  const { data: post } = await supabase.from(TABLES.posts).select().eq('id', id).maybeSingle();
   if (!post) notFound();
 
   return <PostForm post={post} />;

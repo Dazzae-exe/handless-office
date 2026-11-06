@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { TABLES } from '@/lib/supabase/tables';
 import { ProjectForm } from '@/components/projects/ProjectForm';
 
 export const metadata: Metadata = { title: 'Editar proyecto' };
@@ -13,11 +14,10 @@ interface ProjectEditPageProps {
 
 export default async function ProjectEditPage({ params }: ProjectEditPageProps) {
   const { id } = await params;
-  // Evita un error de Postgres (uuid inválido) con ids arbitrarios en la URL.
   if (!UUID_RE.test(id)) notFound();
 
   const supabase = await createClient();
-  const { data: project } = await supabase.from('projects').select().eq('id', id).maybeSingle();
+  const { data: project } = await supabase.from(TABLES.projects).select().eq('id', id).maybeSingle();
   if (!project) notFound();
 
   return <ProjectForm project={project} />;

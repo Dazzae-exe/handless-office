@@ -58,12 +58,12 @@ Documentación viva que mantienen los agentes.
 | Ruta                                                                                   | Qué vive dentro                                                                   |
 | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | [lib/list-params.ts](lib/list-params.ts)                                               | Parámetros de listados en la URL (status, q, tag, page) y tamaños de página.      |
-| [lib/supabase.ts](lib/supabase.ts)                                                     | Cliente base de Supabase tipado con `Database`.                                   |
+| [lib/supabase/tables.ts](lib/supabase/tables.ts)                                       | Nombres de tablas y vistas de analytics configurables por env `NEXT_PUBLIC_SUPABASE_*` (con valores por defecto). |
 | [lib/supabase/client.ts](lib/supabase/client.ts) / [server.ts](lib/supabase/server.ts) | Clientes de Supabase para navegador y servidor (`@supabase/ssr`).                 |
 | [lib/supabase/posts.ts](lib/supabase/posts.ts)                                         | Crear y actualizar posts.                                                         |
 | [lib/supabase/projects.ts](lib/supabase/projects.ts)                                   | Crear y actualizar proyectos.                                                     |
 | [lib/supabase/analytics.ts](lib/supabase/analytics.ts)                                 | Consultas de analíticas por rango de días.                                        |
-| [lib/supabase/storage.ts](lib/supabase/storage.ts)                                     | Subida de imágenes del editor a Supabase Storage (bucket, tipos y tamaño máximo). |
+| [lib/supabase/storage.ts](lib/supabase/storage.ts)                                     | Subida de imágenes del editor a Supabase Storage (bucket configurable por `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET`, tipos y tamaño máximo de 1 MB). |
 | [lib/theme/store.ts](lib/theme/store.ts)                                               | Store externo del tema (localStorage + matchMedia) para useSyncExternalStore.     |
 
 ### utils/

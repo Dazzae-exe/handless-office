@@ -32,16 +32,18 @@
       "id": "F-002",
       "name": "Conexión con cualquier base de datos / tabla de Supabase",
       "assigned_to": null,
-      "status": "pending",
+      "status": "done",
       "tasks": [
-        "[ ] Exploración: definir estrategia para nombres de tablas/vistas/bucket configurables (variables de entorno vs archivo de config) y su impacto en el tipado Database de supabase-js; registrar en docs/exploraciones/explorer.md",
-        "[ ] Crear módulo de configuración tipado (p. ej. lib/supabase/tables.ts) que lea de env NEXT_PUBLIC_SUPABASE_POSTS_TABLE, _PROJECTS_TABLE, _IMAGES_TABLE, prefijo de vistas analytics y bucket de storage, con valores por defecto actuales ('posts', 'projects', 'images', 'analytics_*')",
-        "[ ] Añadir las nuevas variables a .env.example con documentación breve",
-        "[ ] Reemplazar los nombres hardcodeados en lib/supabase/posts.ts, projects.ts, storage.ts (tabla images y EDITOR_IMAGE_BUCKET) y analytics.ts por el módulo de configuración",
-        "[ ] Reemplazar los nombres hardcodeados en app/(dashboard)/page.tsx, posts/page.tsx, posts/[id]/page.tsx, projects/page.tsx y projects/[id]/page.tsx",
-        "[ ] Ajustar el tipado (types) para que las consultas sigan tipadas estrictamente sin any cuando el nombre de tabla es dinámico",
-        "[ ] Eliminar lib/supabase.ts (cliente sin uso con ANON_KEY) y unificar en lib/supabase/client.ts y server.ts con PUBLISHABLE_KEY; quitar NEXT_PUBLIC_SUPABASE_ANON_KEY de .env.example",
-        "[ ] Documentar en README.md el esquema mínimo esperado (columnas, vistas de analytics, bucket, RLS) y cómo apuntar a tablas propias; verificar pnpm lint y pnpm build"
+        "[-] Exploración: definir estrategia para nombres de tablas/vistas/bucket configurables (variables de entorno vs archivo de config) y su impacto en el tipado Database de supabase-js; registrar en docs/exploraciones/explorer.md",
+        "[-] (A) Crear lib/supabase/tables.ts con TABLES (posts, projects, images) y VIEWS (prefijo analytics_) desde env NEXT_PUBLIC_SUPABASE_*, con cast al literal de Database y fallback con ||",
+        "[-] (A) Añadir las nuevas variables a .env.example con documentación breve y quitar NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "[-] (A) Reemplazar los nombres hardcodeados en lib/supabase/posts.ts, projects.ts, storage.ts (tabla images; EDITOR_IMAGE_BUCKET se lee del env en storage.ts) y analytics.ts por el módulo de configuración",
+        "[-] (B) Reemplazar los nombres hardcodeados en app/(dashboard)/page.tsx, posts/page.tsx, posts/[id]/page.tsx, projects/page.tsx y projects/[id]/page.tsx",
+        "[-] (A) Ajustar el tipado: las consultas siguen tipadas estrictamente sin any (cast solo de tipo al literal, ver explorer.md)",
+        "[-] (Manager) Eliminar lib/supabase.ts (cliente sin uso con ANON_KEY) y unificar en lib/supabase/client.ts y server.ts con PUBLISHABLE_KEY",
+        "[-] (B) Documentar en README.md el esquema mínimo esperado (columnas, vistas de analytics, bucket, RLS) y cómo apuntar a tablas propias; verificar pnpm lint y pnpm build",
+        "[-] (Revisión) Bajar MAX_IMAGE_SIZE a 1 MB, devolver EDITOR_IMAGE_BUCKET a storage.ts y registrar la metadata de images sin bloquear la subida (void + .then con console.warn)",
+        "[ ] (Humano) Cambiar el file_size_limit del bucket tiptap_content en Supabase a 1 MB para que coincida con MAX_IMAGE_SIZE"
       ],
       "exploration": true
     },
