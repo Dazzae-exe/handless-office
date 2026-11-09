@@ -1,7 +1,7 @@
 import type { ListParams, StatusFilter } from '@/types/list-params';
+import { normalizeTag } from '@/utils/validators/post';
 
 export const POSTS_PAGE_SIZE = 10;
-export const PROJECTS_PAGE_SIZE = 9;
 
 // Para el or(ilike) de PostgREST: quita comodines LIKE (%, _) y caracteres que rompen el filtro.
 export function sanitizeSearch(raw: string): string {
@@ -24,7 +24,8 @@ export function parseListParams(sp: RawSearchParams): ListParams {
   const pageRaw = Number.parseInt(first(sp.page) ?? '1', 10);
   const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
-  const tag = first(sp.tag)?.trim() || null;
+  const tag = normalizeTag(first(sp.tag) ?? '') || null;
+  const type = first(sp.type)?.trim() || null;
 
-  return { status, q, page, tag };
+  return { status, q, page, tag, type };
 }

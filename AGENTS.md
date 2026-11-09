@@ -28,9 +28,8 @@ Documentación viva que mantienen los agentes.
 | [app/globals.css](app/globals.css)                                         | Estilos globales y tokens de TailwindCSS v4.                                                         |
 | [app/(dashboard)/layout.tsx](<app/(dashboard)/layout.tsx>)                 | Layout del dashboard (AppShell con sidebar y header).                                                |
 | [app/(dashboard)/page.tsx](<app/(dashboard)/page.tsx>)                     | Home del dashboard.                                                                                  |
-| [app/(dashboard)/posts/](<app/(dashboard)/posts/>)                         | Listado de posts (draft / posted / archived), `new/` para crear y `[id]/` para editar con el editor. |
-| [app/(dashboard)/projects/](<app/(dashboard)/projects/>)                   | Listado de proyectos, `new/` para crear y `[id]/` para editar.                                       |
-| [app/(dashboard)/analytics/page.tsx](<app/(dashboard)/analytics/page.tsx>) | Página de analíticas (vistas y recursos top).                                                        |
+| [app/(dashboard)/posts/](<app/(dashboard)/posts/>)                         | Listado de posts de cualquier `type` (draft / posted / archived), `new/` para crear y `[id]/` para editar con el editor. |
+| [app/(dashboard)/analytics/page.tsx](<app/(dashboard)/analytics/page.tsx>) | Página de analíticas (vistas y posts top).                                                           |
 
 ### components/
 
@@ -40,9 +39,8 @@ Documentación viva que mantienen los agentes.
 | [components/layout/](components/layout/)                       | Estructura de página: AppShell, Header, Sidebar, Footer, ThemeProvider.                                                           |
 | [components/editor/](components/editor/)                       | Editor HTML con TipTap 3 (TiptapEditor), menú de slash commands y sus estilos.                                                    |
 | [components/editor/extensions/](components/editor/extensions/) | Extensiones propias de TipTap (slash command).                                                                                    |
-| [components/posts/](components/posts/)                         | PostCard, PostForm y PostList.                                                                                                    |
-| [components/projects/](components/projects/)                   | ProjectCard, ProjectForm, ProjectList y TagFilterChips.                                                                           |
-| [components/analytics/](components/analytics/)                 | Gráfica de vistas (ViewsChart) y lista de recursos top.                                                                           |
+| [components/posts/](components/posts/)                         | PostCard, PostForm, PostList y TagFilterChips (filtro por tag del listado).                                                       |
+| [components/analytics/](components/analytics/)                 | Gráfica de vistas (ViewsChart) y lista de posts top.                                                                              |
 
 ### hooks/
 
@@ -51,7 +49,6 @@ Documentación viva que mantienen los agentes.
 | [hooks/useListFilters.ts](hooks/useListFilters.ts)       | Estado de filtros, búsqueda y paginación sincronizado con la URL. |
 | [hooks/useMutationRunner.ts](hooks/useMutationRunner.ts) | Ejecuta mutaciones (crear/editar) con estado de carga y error.    |
 | [hooks/usePosts.ts](hooks/usePosts.ts)                   | Mutaciones de posts (crear/editar/borrar) sobre useMutationRunner. |
-| [hooks/useProjects.ts](hooks/useProjects.ts)             | Mutaciones de proyectos (crear/editar/borrar) sobre useMutationRunner. |
 | [hooks/useTheme.ts](hooks/useTheme.ts)                   | Tema actual y setter sobre el store de lib/theme.                 |
 
 ### lib/
@@ -62,7 +59,7 @@ Documentación viva que mantienen los agentes.
 | [lib/supabase/tables.ts](lib/supabase/tables.ts)                                       | Nombres de tablas y vistas de analytics configurables por env `NEXT_PUBLIC_SUPABASE_*` (con valores por defecto). |
 | [lib/supabase/client.ts](lib/supabase/client.ts) / [server.ts](lib/supabase/server.ts) | Clientes de Supabase para navegador y servidor (`@supabase/ssr`).                 |
 | [lib/supabase/posts.ts](lib/supabase/posts.ts)                                         | Crear y actualizar posts.                                                         |
-| [lib/supabase/projects.ts](lib/supabase/projects.ts)                                   | Crear y actualizar proyectos.                                                     |
+| [lib/supabase/errors.ts](lib/supabase/errors.ts)                                       | `friendlyError` compartido: traduce errores de Supabase a mensajes para el usuario. |
 | [lib/supabase/analytics.ts](lib/supabase/analytics.ts)                                 | Consultas de analíticas por rango de días.                                        |
 | [lib/supabase/storage.ts](lib/supabase/storage.ts)                                     | Subida de imágenes del editor a Supabase Storage (bucket configurable por `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET`, tipos y tamaño máximo de 1 MB). |
 | [lib/theme/store.ts](lib/theme/store.ts)                                               | Store externo del tema (localStorage + matchMedia) para useSyncExternalStore.     |
@@ -72,13 +69,13 @@ Documentación viva que mantienen los agentes.
 | Ruta                                   | Qué vive dentro                                                                  |
 | -------------------------------------- | -------------------------------------------------------------------------------- |
 | [utils/theme/](utils/theme/)           | Script anti-parpadeo del tema claro/oscuro (themeScript) y su clave de storage. |
-| [utils/validators/](utils/validators/) | Funciones puras de validación: HTML vacío, slug, posts y proyectos.              |
+| [utils/validators/](utils/validators/) | Funciones puras de validación: HTML vacío, slug y posts.                         |
 
 ### types/
 
 | Ruta               | Qué vive dentro                                                                                      |
 | ------------------ | ---------------------------------------------------------------------------------------------------- |
-| [types/](types/)   | Un archivo por dominio: json, database, post, project, tag, image, analytics, list-params, editor y theme. |
+| [types/](types/)   | Un archivo por dominio: json, database, post, image, analytics, list-params, editor y theme.         |
 
 ### public/
 

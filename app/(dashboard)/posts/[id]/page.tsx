@@ -17,8 +17,13 @@ export default async function PostEditPage({ params }: PostEditPageProps) {
   if (!UUID_RE.test(id)) notFound();
 
   const supabase = await createClient();
-  const { data: post } = await supabase.from(TABLES.posts).select().eq('id', id).maybeSingle();
+  const [{ data: post }, { data: types }] = await Promise.all([
+    supabase.from(TABLES.posts).select().eq('id', id).maybeSingle(),
+    supabase.from(TABLES.posts).select('type'),
+  ]);
   if (!post) notFound();
 
-  return <PostForm post={post} />;
+  const typeOptions = [...new Set((types ?? []).map((row) => row.type))];
+
+  return <PostForm post={post} typeOptions={typeOptions} />;
 }

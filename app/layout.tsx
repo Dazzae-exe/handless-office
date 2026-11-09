@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Blog Dashboard",
-  description: "Panel para crear y gestionar blog posts y proyectos.",
+  description: "Panel para crear y gestionar los posts de tu portfolio.",
 };
 
 export default function RootLayout({

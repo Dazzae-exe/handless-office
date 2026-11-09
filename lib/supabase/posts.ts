@@ -1,13 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
+import { friendlyError } from '@/lib/supabase/errors';
 import { TABLES } from '@/lib/supabase/tables';
 import type { Post, PostFormData, PostUpdate } from '@/types/post';
-
-function friendlyError(error: { code?: string; message: string }): Error {
-  if (error.code === '23505') {
-    return new Error('Ya existe un post con ese slug. Elige otro en Ajustes.');
-  }
-  return new Error(error.message);
-}
 
 export async function createPost(data: PostFormData): Promise<Post> {
   const supabase = createClient();

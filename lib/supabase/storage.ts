@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
 import { TABLES } from '@/lib/supabase/tables';
-import type { EditorContentType } from '@/types/editor';
 import type { UploadedImage } from '@/types/image';
 
 export const EDITOR_IMAGE_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || 'tiptap_content';
@@ -32,16 +31,13 @@ function extensionFor(file: File): string {
   return file.type.split('/')[1] ?? 'bin';
 }
 
-export async function uploadEditorImage(
-  file: File,
-  contentType: EditorContentType
-): Promise<UploadedImage> {
+export async function uploadEditorImage(file: File): Promise<UploadedImage> {
   const validationError = validateImageFile(file);
   if (validationError) throw new Error(validationError);
 
   const supabase = createClient();
 
-  const path = `${contentType}/${crypto.randomUUID()}.${extensionFor(file)}`;
+  const path = `posts/${crypto.randomUUID()}.${extensionFor(file)}`;
 
   const { error: uploadError } = await supabase.storage
     .from(EDITOR_IMAGE_BUCKET)

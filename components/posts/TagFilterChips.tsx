@@ -13,7 +13,7 @@ export function TagFilterChips({ tags }: TagFilterChipsProps) {
   if (tags.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5" aria-label="Filtrar por tag">
+    <div role="group" className="flex flex-wrap items-center gap-1.5" aria-label="Filtrar por tag">
       {tags.map((tag) => {
         const active = activeTag === tag;
         return (

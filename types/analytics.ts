@@ -1,10 +1,6 @@
-export type AnalyticsResourceType = 'post' | 'project' | 'page';
-
 export type AnalyticsEvent = {
   id: string;
-  page_path: string;
-  resource_type: AnalyticsResourceType | null;
-  resource_id: string | null;
+  post_id: string;
   visitor_id: string | null;
   referrer: string | null;
   user_agent: string | null;
@@ -15,7 +11,6 @@ export type AnalyticsEventInsert = Omit<AnalyticsEvent, 'id' | 'viewed_at'>;
 
 export type AnalyticsDaily = {
   day: string;
-  resource_type: AnalyticsResourceType;
   views: number;
   unique_visitors: number;
 }
@@ -23,9 +18,6 @@ export type AnalyticsDaily = {
 export type AnalyticsSummary = {
   total_views: number;
   unique_visitors: number;
-  page_views: number;
-  post_views: number;
-  project_views: number;
 }
 
 export type AnalyticsTopPost = {
@@ -37,13 +29,10 @@ export type AnalyticsTopPost = {
   last_viewed_at: string;
 }
 
-export type AnalyticsTopProject = Omit<AnalyticsTopPost, 'slug'>;
-
 export interface AnalyticsData {
   summary: AnalyticsSummary;
   daily: AnalyticsDaily[];
   topPosts: AnalyticsTopPost[];
-  topProjects: AnalyticsTopProject[];
 }
 
 export interface DailyViews {

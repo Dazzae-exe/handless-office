@@ -4,11 +4,10 @@ import type { TopResource } from '@/types/analytics';
 interface TopResourceListProps {
   title: string;
   items: TopResource[];
-  hrefBase: '/posts' | '/projects';
   emptyText: string;
 }
 
-export function TopResourceList({ title, items, hrefBase, emptyText }: TopResourceListProps) {
+export function TopResourceList({ title, items, emptyText }: TopResourceListProps) {
   return (
     <div className="rounded-card border border-border bg-surface p-6">
       <h2 className="text-sm font-medium text-foreground">{title}</h2>
@@ -21,7 +20,7 @@ export function TopResourceList({ title, items, hrefBase, emptyText }: TopResour
             <li key={item.id} className="flex items-center gap-3 py-2.5 text-sm">
               <span className="w-4 shrink-0 tabular-nums text-xs text-muted">{index + 1}</span>
               <Link
-                href={`${hrefBase}/${item.id}`}
+                href={`/posts/${item.id}`}
                 className="min-w-0 flex-1 truncate text-foreground hover:text-accent"
               >
                 {item.title}
