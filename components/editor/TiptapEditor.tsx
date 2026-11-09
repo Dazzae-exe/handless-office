@@ -29,7 +29,6 @@ import {
 
 import { SlashCommand } from '@/components/editor/extensions/slash-command';
 import { uploadEditorImage } from '@/lib/supabase/storage';
-import type { EditorContentType } from '@/types/editor';
 import './editor.css';
 
 const lowlight = createLowlight(common);
@@ -37,7 +36,6 @@ const lowlight = createLowlight(common);
 export interface TiptapEditorProps {
   value: string;
   onChange: (html: string) => void;
-  contentType: EditorContentType;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -48,7 +46,6 @@ type Mode = 'edit' | 'preview';
 export function TiptapEditor({
   value,
   onChange,
-  contentType,
   placeholder = "Escribe '/' para comandos…",
   disabled = false,
   className = '',
@@ -150,7 +147,7 @@ export function TiptapEditor({
       setError(null);
       setUploading(true);
       try {
-        const { url } = await uploadEditorImage(file, contentType);
+        const { url } = await uploadEditorImage(file);
         editor.chain().focus().setImage({ src: url, alt: file.name }).run();
       } catch (e) {
         setError(e instanceof Error ? e.message : 'No se pudo subir la imagen.');
@@ -158,7 +155,7 @@ export function TiptapEditor({
         setUploading(false);
       }
     },
-    [editor, contentType]
+    [editor]
   );
   // En efecto y no en render: react-hooks prohíbe escribir refs al renderizar y los handlers de PM leen este ref.
   useEffect(() => {

@@ -129,3 +129,5 @@ Decisiones tomadas:
 - `rateLimit: { enabled: true, storage: 'memory', customRules: { '/sign-in/email': { window: 60, max: 5 } } }`. No se configura ipAddressHeaders: en Vercel la plataforma reescribe x-forwarded-for. Si se despliega detrás de otro proxy, hay que revisarlo.
 - SQL del rol en docs/exploraciones/f-011-auth-role.sql (grant a postgres, schema con authorization, revoke en public, search_path). migrate se lanza con la cadena en modo session (5432) y la app usa 6543.
 - F-011 se hace sobre el esquema actual. Su SQL de RLS va en docs/exploraciones/f-011-rls.sql y se ejecuta después del deploy. f-010-migration.sql se reduce a lo que necesitan las tablas nuevas.
+
+2026-11-09 - Feature: F-011/F-010 - Contexto de la exploración: el humano quita better-auth - Decisiones tomadas: la exploración de F-011 del 2026-11-05 (better-auth, schema better_auth, secret key en servidor) queda DESCARTADA; F-011 tendrá una exploración nueva con Supabase Auth. Para F-010 vale la opción A de RLS descrita en la exploración de F-010 (anon con CRUD, estado actual del código).

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { BarChart3, Eye, FileText, FolderGit2, Users } from 'lucide-react';
+import { BarChart3, Eye, Users } from 'lucide-react';
 import { getAnalytics, ANALYTICS_RANGE_DAYS } from '@/lib/supabase/analytics';
 import type { AnalyticsData, DailyViews } from '@/types/analytics';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -10,10 +10,7 @@ import { TopResourceList } from '@/components/analytics/TopResourceList';
 export const metadata: Metadata = { title: 'Analíticas' };
 
 function buildDailySeries(daily: AnalyticsData['daily']): DailyViews[] {
-  const viewsByDay = new Map<string, number>();
-  for (const row of daily) {
-    viewsByDay.set(row.day, (viewsByDay.get(row.day) ?? 0) + row.views);
-  }
+  const viewsByDay = new Map(daily.map((row) => [row.day, row.views]));
 
   const series: DailyViews[] = [];
   const cursor = new Date();
@@ -33,7 +30,7 @@ export default async function AnalyticsPage() {
   } catch (error) {
     return (
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <PageHeader title="Analíticas" description="Visitas a tus posts, proyectos y páginas." />
+        <PageHeader title="Analíticas" description="Visitas a tus posts." />
         <p role="alert" className="text-sm text-danger">
           No se pudieron cargar las analíticas:{' '}
           {error instanceof Error ? error.message : 'error desconocido'}
@@ -42,18 +39,16 @@ export default async function AnalyticsPage() {
     );
   }
 
-  const { summary, topPosts, topProjects } = data;
+  const { summary, topPosts } = data;
 
   const stats = [
     { label: 'Visitas totales', value: summary.total_views, icon: Eye },
     { label: 'Visitantes únicos', value: summary.unique_visitors, icon: Users },
-    { label: 'Vistas a posts', value: summary.post_views, icon: FileText },
-    { label: 'Vistas a proyectos', value: summary.project_views, icon: FolderGit2 },
   ];
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <PageHeader title="Analíticas" description="Visitas a tus posts, proyectos y páginas." />
+      <PageHeader title="Analíticas" description="Visitas a tus posts." />
 
       {summary.total_views === 0 ? (
         <EmptyState
@@ -63,7 +58,7 @@ export default async function AnalyticsPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3">
             {stats.map(({ label, value, icon: Icon }) => (
               <div
                 key={label}
@@ -92,20 +87,11 @@ export default async function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <TopResourceList
-              title="Posts más vistos"
-              items={topPosts}
-              hrefBase="/posts"
-              emptyText="Ningún post tiene visitas todavía."
-            />
-            <TopResourceList
-              title="Proyectos más vistos"
-              items={topProjects}
-              hrefBase="/projects"
-              emptyText="Ningún proyecto tiene visitas todavía."
-            />
-          </div>
+          <TopResourceList
+            title="Posts más vistos"
+            items={topPosts}
+            emptyText="Ningún post tiene visitas todavía."
+          />
         </>
       )}
     </div>

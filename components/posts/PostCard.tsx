@@ -46,8 +46,18 @@ export function PostCard({ post }: PostCardProps) {
               />
             )}
           </div>
-          {post.excerpt && <p className="truncate text-sm text-muted">{post.excerpt}</p>}
-          <p className="text-xs text-muted">{dateFormatter.format(new Date(post.created_at))}</p>
+          {post.description && <p className="truncate text-sm text-muted">{post.description}</p>}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
+            <span className="rounded-card border border-border bg-surface-hover px-2 py-0.5 font-medium text-foreground">
+              {post.type}
+            </span>
+            {post.tags.map((tag) => (
+              <span key={tag} className="rounded-card border border-border bg-background px-2 py-0.5">
+                {tag}
+              </span>
+            ))}
+            <span>{dateFormatter.format(new Date(post.created_at))}</span>
+          </div>
         </div>
 
         <span

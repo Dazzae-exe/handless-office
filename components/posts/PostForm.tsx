@@ -11,8 +11,15 @@ import { Input } from '@/components/common/Input';
 import { Dialog } from '@/components/common/Dialog';
 import { usePosts } from '@/hooks/usePosts';
 import { uploadEditorImage, ACCEPTED_IMAGE_TYPES } from '@/lib/supabase/storage';
-import { slugify, validatePostContent, validatePostTitle } from '@/utils/validators/post';
-import type { Post } from '@/types/post';
+import {
+  normalizeTag,
+  slugify,
+  validateOptionalUrl,
+  validatePostContent,
+  validatePostTitle,
+  validatePostType,
+} from '@/utils/validators/post';
+import type { Post, PostFormData } from '@/types/post';
 
 // Tiptap + lowlight + yjs pesan: solo en cliente y en las rutas de edición (bundle-dynamic-imports).
 const TiptapEditor = dynamic(
@@ -36,16 +43,22 @@ function resizeTitle(el: HTMLTextAreaElement | null) {
 
 interface PostFormProps {
   post?: Post;
+  typeOptions: string[];
 }
 
-export function PostForm({ post }: PostFormProps) {
+export function PostForm({ post, typeOptions }: PostFormProps) {
   const router = useRouter();
   const { create, update, remove, pending, error } = usePosts();
 
   const [title, setTitle] = useState(post?.title ?? '');
-  const [excerpt, setExcerpt] = useState(post?.excerpt ?? '');
+  const [type, setType] = useState(post?.type ?? '');
+  const [description, setDescription] = useState(post?.description ?? '');
   const [slug, setSlug] = useState(post?.slug ?? '');
   const [slugTouched, setSlugTouched] = useState(post != null);
+  const [githubUrl, setGithubUrl] = useState(post?.github_url ?? '');
+  const [websiteUrl, setWebsiteUrl] = useState(post?.website_url ?? '');
+  const [tags, setTags] = useState<string[]>(post?.tags ?? []);
+  const [tagInput, setTagInput] = useState('');
   const [coverImage, setCoverImage] = useState(post?.cover_image ?? null);
   const [featured, setFeatured] = useState(post?.featured ?? false);
   const [published, setPublished] = useState(post?.published ?? false);
@@ -62,17 +75,34 @@ export function PostForm({ post }: PostFormProps) {
 
   const effectiveSlug = slugTouched ? slug : slugify(title);
 
+  const addTag = (raw: string) => {
+    const tag = normalizeTag(raw);
+    if (!tag) return;
+    setTags((prev) => (prev.includes(tag) ? prev : [...prev, tag]));
+    setTagInput('');
+  };
+
   const save = async (nextPublished: boolean = published) => {
-    const validationError = validatePostTitle(title) ?? validatePostContent(contentRef.current);
+    const validationError =
+      validatePostTitle(title) ??
+      validatePostType(type) ??
+      validatePostContent(contentRef.current) ??
+      validateOptionalUrl(githubUrl.trim()) ??
+      validateOptionalUrl(websiteUrl.trim());
     setFormError(validationError);
     if (validationError) return;
 
-    const data = {
+    const pendingTag = normalizeTag(tagInput);
+    const data: PostFormData = {
+      type: type.trim(),
       title: title.trim(),
       content: contentRef.current,
-      excerpt: excerpt.trim() || null,
+      description: description.trim() || null,
       slug: effectiveSlug || null,
       cover_image: coverImage,
+      tags: pendingTag && !tags.includes(pendingTag) ? [...tags, pendingTag] : tags,
+      github_url: githubUrl.trim() || null,
+      website_url: websiteUrl.trim() || null,
       published: nextPublished,
       featured,
     };
@@ -100,7 +130,7 @@ export function PostForm({ post }: PostFormProps) {
     setFormError(null);
     setUploadingCover(true);
     try {
-      const { url } = await uploadEditorImage(file, 'posts');
+      const { url } = await uploadEditorImage(file);
       setCoverImage(url);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'No se pudo subir la portada.');
@@ -195,19 +225,32 @@ export function PostForm({ post }: PostFormProps) {
         className="w-full resize-none overflow-hidden bg-transparent text-4xl font-bold tracking-tight text-foreground outline-none placeholder:text-muted/50"
       />
 
+      <Input
+        label="Tipo"
+        list="post-type-options"
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+        placeholder="blog, proyecto…"
+        aria-invalid={formError !== null && formError === validatePostType(type)}
+      />
+      <datalist id="post-type-options">
+        {typeOptions.map((option) => (
+          <option key={option} value={option} />
+        ))}
+      </datalist>
+
       <TiptapEditor
         value={initialContent}
         onChange={(html) => {
           contentRef.current = html;
         }}
-        contentType="posts"
       />
 
       <Dialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         title="Ajustes del post"
-        description="Metadatos y opciones de publicación."
+        description="Metadatos, enlaces y opciones de publicación."
         footer={
           <Button variant="secondary" onClick={() => setSettingsOpen(false)}>
             Listo
@@ -227,16 +270,74 @@ export function PostForm({ post }: PostFormProps) {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="post-excerpt" className="text-sm font-medium text-foreground">
-              Excerpt
+            <label htmlFor="post-description" className="text-sm font-medium text-foreground">
+              Descripción
             </label>
             <textarea
-              id="post-excerpt"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
+              id="post-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Resumen corto para el listado…"
               className="w-full resize-none rounded-card border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted transition-colors focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            />
+          </div>
+
+          <Input
+            label="GitHub"
+            type="url"
+            value={githubUrl}
+            onChange={(e) => setGithubUrl(e.target.value)}
+            placeholder="https://github.com/usuario/repo"
+          />
+
+          <Input
+            label="Sitio web"
+            type="url"
+            value={websiteUrl}
+            onChange={(e) => setWebsiteUrl(e.target.value)}
+            placeholder="https://mi-proyecto.vercel.app"
+          />
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="post-tags" className="text-sm font-medium text-foreground">
+              Tags
+            </label>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 rounded-card border border-border bg-background px-2 py-0.5 text-xs text-foreground"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => setTags((prev) => prev.filter((t) => t !== tag))}
+                      aria-label={`Quitar tag ${tag}`}
+                      className="text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <input
+              id="post-tags"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault();
+                  addTag(tagInput);
+                } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
+                  setTags((prev) => prev.slice(0, -1));
+                }
+              }}
+              onBlur={() => addTag(tagInput)}
+              placeholder="Escribe un tag y presiona Enter…"
+              className="h-10 w-full rounded-card border border-border bg-input px-3 text-sm text-foreground placeholder:text-muted transition-colors focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             />
           </div>
 

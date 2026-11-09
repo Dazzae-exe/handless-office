@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Eye, FileText, FolderGit2 } from 'lucide-react';
+import { BarChart3, Eye, FileText } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getTotalViews } from '@/lib/supabase/analytics';
 import { TABLES } from '@/lib/supabase/tables';
@@ -8,38 +8,32 @@ import { PageHeader } from '@/components/common/PageHeader';
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const count = (table: 'posts' | 'projects', published?: boolean) => {
-    let query = supabase.from(table).select('*', { count: 'exact', head: true });
+  const count = (published?: boolean) => {
+    let query = supabase.from(TABLES.posts).select('*', { count: 'exact', head: true });
     if (published !== undefined) query = query.eq('published', published);
     return query;
   };
 
-  const [postsRes, projectsRes, publishedPostsRes, publishedProjectsRes, totalViews] =
-    await Promise.all([
-      count(TABLES.posts),
-      count(TABLES.projects),
-      count(TABLES.posts, true),
-      count(TABLES.projects, true),
-      getTotalViews(),
-    ]);
-
-  const published = (publishedPostsRes.count ?? 0) + (publishedProjectsRes.count ?? 0);
+  const [postsRes, publishedRes, totalViews] = await Promise.all([
+    count(),
+    count(true),
+    getTotalViews(),
+  ]);
 
   const stats = [
     { label: 'Posts', value: postsRes.count ?? 0, icon: FileText },
-    { label: 'Proyectos', value: projectsRes.count ?? 0, icon: FolderGit2 },
+    { label: 'Publicados', value: publishedRes.count ?? 0, icon: BarChart3 },
     { label: 'Vistas', value: totalViews, icon: Eye },
-    { label: 'Publicados', value: published, icon: BarChart3 },
   ];
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <PageHeader
         title="Dashboard"
-        description="Resumen de tu blog y proyectos."
+        description="Resumen de tus posts."
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         {stats.map(({ label, value, icon: Icon }) => (
           <div
             key={label}
@@ -61,7 +55,7 @@ export default async function DashboardPage() {
         <h2 className="text-sm font-medium text-foreground">Analíticas del sitio</h2>
         <p className="mt-1 text-sm text-muted">
           Las visitas de tu sitio público se registran automáticamente. Revisa el
-          detalle por día y los posts y proyectos más vistos en{' '}
+          detalle por día y los posts más vistos en{' '}
           <Link href="/analytics" className="text-accent hover:underline">
             Analíticas
           </Link>

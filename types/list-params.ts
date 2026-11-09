@@ -5,4 +5,5 @@ export interface ListParams {
   q: string;
   page: number;
   tag: string | null;
+  type: string | null;
 }

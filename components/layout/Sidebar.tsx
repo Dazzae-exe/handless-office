@@ -3,13 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
-import {
-  BarChart3,
-  FileText,
-  FolderGit2,
-  LayoutDashboard,
-  type LucideIcon,
-} from 'lucide-react';
+import { BarChart3, FileText, LayoutDashboard, type LucideIcon } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -20,7 +14,6 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/posts', label: 'Posts', icon: FileText },
-  { href: '/projects', label: 'Proyectos', icon: FolderGit2 },
   { href: '/analytics', label: 'Analíticas', icon: BarChart3 },
 ];
 
