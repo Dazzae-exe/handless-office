@@ -31,12 +31,14 @@ drop view if exists public.analytics_top_posts;
 drop view if exists public.analytics_daily;
 drop view if exists public.analytics_summary;
 drop function if exists public.track_view; -- falla si hay varias sobrecargas: bórralas con su firma
-drop table if exists public.analytics;
-drop table if exists public.analytics_events;
-drop table if exists public.posts_tags;
-drop table if exists public.tags;
-drop table if exists public.projects;
-drop table if exists public.posts;
+-- Un solo drop: Postgres resuelve las dependencias cruzadas entre ellas (p.ej. la policy tags_select usa posts_tags) sin CASCADE.
+drop table if exists
+  public.analytics,
+  public.analytics_events,
+  public.posts_tags,
+  public.tags,
+  public.projects,
+  public.posts;
 
 -- 2. Tabla posts unificada
 create table public.posts (
