@@ -43,7 +43,7 @@
         "[-] (Manager) Eliminar lib/supabase.ts (cliente sin uso con ANON_KEY) y unificar en lib/supabase/client.ts y server.ts con PUBLISHABLE_KEY",
         "[-] (B) Documentar en README.md el esquema mínimo esperado (columnas, vistas de analytics, bucket, RLS) y cómo apuntar a tablas propias; verificar pnpm lint y pnpm build",
         "[-] (Revisión) Bajar MAX_IMAGE_SIZE a 1 MB, devolver EDITOR_IMAGE_BUCKET a storage.ts y registrar la metadata de images sin bloquear la subida (void + .then con console.warn)",
-        "[ ] (Humano) Cambiar el file_size_limit del bucket tiptap_content en Supabase a 1 MB para que coincida con MAX_IMAGE_SIZE"
+        "[-] (Humano) Cambiar el file_size_limit del bucket tiptap_content en Supabase a 1 MB para que coincida con MAX_IMAGE_SIZE"
       ],
       "exploration": true
     },
@@ -102,14 +102,14 @@
       "assigned_to": null,
       "status": "pending",
       "tasks": [
-        "[ ] Exploración: decidir cómo el sitio público registra la vista al entrar a un post. Opciones: llamar desde el portfolio a la función track_view(p_post_id, ...) de f-010-migration.sql con la publishable key, o pasar por un route handler propio. Las vistas analytics_summary/daily/top_posts ya no son legibles por anon (solo el servidor con la secret key). Registrar en docs/exploraciones/explorer.md",
+        "[ ] Exploración: decidir cómo el sitio público registra la vista al entrar a un post. Opciones: llamar desde el portfolio a la función track_view(p_post_id, ...) de f-010-migration.sql con la publishable key, o pasar por un route handler propio. Registrar en docs/exploraciones/explorer.md",
         "[ ] Si la exploración elige route handler: crear app/api/analytics/route.ts (POST) que valide post_id (UUID) y llame a track_view (sin resource_type)",
         "[ ] Mover buildDailySeries de app/(dashboard)/analytics/page.tsx a utils/ como función pura (sin sumar por resource_type: una fila por día)",
         "[ ] Añadir selector de rango (7/30/90 días) vía searchParams en analytics/page.tsx y parametrizar getAnalytics en lib/supabase/analytics.ts",
         "[ ] Mostrar las visitas de cada post en PostCard o en la página de edición (desde analytics_top_posts o un count de analytics_events por post_id)",
         "[ ] Crear app/(dashboard)/analytics/loading.tsx con skeleton accesible",
         "[ ] Documentar en README.md cómo integrar el tracking desde el portfolio público (llamada a track_view con post_id); pnpm lint y pnpm build",
-        "[ ] Dependencias: F-010 y F-011 mergeadas en main (rama propia feature/F-006, no la de ellas). Asume el modelo unificado (analytics_events.post_id, sin resource_type, sin page_views ni top_projects) y lecturas por createAdminClient() (lib/supabase/admin.ts). Si se usa route handler, va fuera de proxy.ts (es público)"
+        "[ ] Dependencias: F-010 mergeada en main (rama propia feature/F-006). Asume el modelo unificado (analytics_events.post_id, sin resource_type, sin page_views ni top_projects). Las lecturas siguen con lib/supabase/server.ts (publishable key) mientras no exista F-011"
       ],
       "exploration": true
     },
@@ -127,7 +127,7 @@
         "[ ] Crear hook hooks/useAiGenerate.ts que consuma el stream y exponga estado de carga/error sin useEffect",
         "[ ] Añadir UI en components/posts/PostForm.tsx (botón + Dialog con input de prompt) que inserte el contenido generado en TiptapEditor",
         "[ ] Manejar errores (sin API key, rate limit) con mensajes accesibles; pnpm lint y pnpm build",
-        "[ ] Dependencias: F-010 y F-011 mergeadas en main (rama propia feature/F-007). La UI va en PostForm, único formulario tras F-010; app/api/ai/generate gasta la API key del dueño, así que exige sesión con requireSession() de F-011"
+        "[ ] Dependencias: F-010 mergeada en main (rama propia feature/F-007). La UI va en PostForm, único formulario tras F-010. app/api/ai/generate gasta la API key del dueño: si F-011 (Supabase Auth) ya está mergeada, exige sesión con supabase.auth.getUser(); si no, decidir con el humano antes de exponerlo"
       ],
       "exploration": true
     },
@@ -153,30 +153,31 @@
       "tasks": [
         "[ ] Unificar la conversión de errores de Supabase: posts.ts usa friendlyError y projects.ts/analytics.ts lanzan new Error(error.message); un solo helper en lib/supabase/",
         "[ ] Mover UUID_RE (duplicado en app/(dashboard)/posts/[id]/page.tsx y projects/[id]/page.tsx) a utils/validators/",
-        "[-] Cubierta por F-011: docs/exploraciones/f-011-rls.sql fija file_size_limit 1 MB del bucket (allowed_mime_types queda fuera; ACCEPTED_IMAGE_TYPES se valida en el servidor)",
+        "[-] file_size_limit 1 MB del bucket: ya cambiado por el humano en Supabase (ver F-002). allowed_mime_types queda fuera; ACCEPTED_IMAGE_TYPES se valida en el código",
         "[ ] Verificar pnpm lint, npx tsc --noEmit y pnpm build",
-        "[ ] Dependencias: F-010 y F-011 mergeadas en main (rama propia). F-011 pasa las escrituras a Server Actions y F-010 borra projects.ts y uno de los [id]/page.tsx, con lo que las tareas 1 y 2 se resuelven solas: revisar y cerrar F-009 si ya no aplica"
+        "[ ] Dependencias: F-010 mergeada en main (rama propia). F-010 unifica el helper de errores y borra projects.ts y projects/[id]/page.tsx, con lo que las tareas 1 y 2 se resuelven solas: revisar y cerrar F-009 si ya no aplica"
       ],
       "exploration": false
     },
     {
       "id": "F-010",
       "name": "Unificar posts y projects en un solo tipo de contenido",
-      "assigned_to": null,
+      "assigned_to": "Implementador",
       "status": "pending",
       "tasks": [
         "[-] (Humano) Decisiones (2026-11-05): se queda el nombre posts (tipo Post, tabla posts, ruta /posts); columnas comunes + description (reemplaza a excerpt), slug, featured, github_url y website_url (reemplaza a demo_url); tags como text[]; categoría en la columna type; se empieza de cero (no se migran datos); analytics con una sola vista top, evento de vista por post_id sin resource_type. Ver docs/decisiones/decisions.md",
         "[-] Exploración: modelo Post unificado, modelado de type y nuevo esquema de analytics registrados en docs/exploraciones/explorer.md; SQL propuesto en docs/exploraciones/f-010-migration.sql",
-        "[-] (Humano) Preguntas abiertas cerradas (2026-11-05): type es texto libre (sin check constraint); RLS opción B con login de better-auth (F-011); se aceptan perder las visitas a páginas que no son un post; sí al filtro ?type en /posts; las imágenes huérfanas del bucket las borra el humano a mano",
-        "[-] (Manager) SQL reducido a lo que necesitan las tablas nuevas: posts sin user_id, RLS de posts y analytics_events, revoke de las vistas recreadas a anon. Rol, images, bucket y políticas de Storage ya los hace F-011",
-        "[ ] Rama y orden: rama propia (feature/F-010) creada desde main con F-011 ya mergeada, desplegada y con sus dos SQL ejecutados. No se trabaja en la rama de F-011",
-        "[ ] types/: types/post.ts con el Post unificado (type: string, description, tags: string[], github_url, website_url; sin excerpt) y su Insert/Update/FormData; types/analytics.ts sin AnalyticsResourceType ni AnalyticsTopProject, AnalyticsEvent con post_id, AnalyticsDaily sin resource_type, AnalyticsSummary solo total_views/unique_visitors, AnalyticsData sin topProjects; types/database.ts sin projects, tags, posts_tags ni analytics, con analytics_events, solo las vistas summary/daily/top_posts y track_view(p_post_id, p_visitor_id, p_referrer, p_user_agent); borrar types/project.ts, types/tag.ts y EditorContentType de types/editor.ts",
-        "[ ] lib/: lib/supabase/tables.ts sin projects ni topProjects (quitar NEXT_PUBLIC_SUPABASE_PROJECTS_TABLE); lib/supabase/posts.ts (Server Actions de F-011) con los campos nuevos y un solo helper de errores que también use analytics.ts (cierra la tarea 1 de F-009); analytics.ts sin la consulta a top_projects ni los campos page/post/project_views; storage.ts (Server Action de F-011) sin el parámetro contentType (carpeta única posts/)",
-        "[ ] Borrar duplicados: lib/supabase/projects.ts, hooks/useProjects.ts, utils/validators/project.ts (mover normalizeTag a utils/validators/post.ts), components/projects/ (mover TagFilterChips a components/posts/) y app/(dashboard)/projects/ completo",
-        "[ ] Posts: PostForm sustituye excerpt por description y añade type como input de texto libre (con <datalist> de los type ya usados, leídos en servidor con createAdminClient()), tags, github_url y website_url (validar URL como hoy en project.ts); validatePost exige type no vacío y absorbe las reglas de validateProject; PostCard/PostList muestran type y tags; /posts gana los filtros ?tag con TagFilterChips (query.contains('tags', [tag])) y ?type (query.eq('type', type)), añadiendo type a ListParams en lib/list-params.ts y types/list-params.ts",
-        "[ ] Ajustar consumidores: Sidebar (sin enlace a proyectos), app/(dashboard)/page.tsx (un solo contador), analytics/page.tsx y TopResourceList (sin tarjetas de vistas a posts/proyectos ni lista top de proyectos), TiptapEditor sin la prop contentType, (dashboard)/not-found.tsx y metadata de app/layout.tsx",
-        "[ ] Docs: README.md (tabla posts unificada, analytics_events, tres vistas solo de servidor, track_view y RLS), .env.example (sin PROJECTS_TABLE; el prefijo cubre tres vistas) y AGENTS.md (sin projects); anotar en memory.md",
-        "[ ] Verificar con grep que no quedan Project, projects, excerpt, demo_url, resource_type, top_projects, EditorContentType, PostType ni POST_TYPES; pnpm lint, npx tsc --noEmit y pnpm build",
+        "[-] (Humano) Preguntas abiertas cerradas (2026-11-05): type es texto libre (sin check constraint); se aceptan perder las visitas a páginas que no son un post; sí al filtro ?type en /posts; las imágenes huérfanas del bucket las borra el humano a mano",
+        "[-] (Humano, 2026-11-09) Se quita better-auth del plan. F-010 ya no depende de F-011: se hace sobre la arquitectura actual de main (sin login, escrituras desde el navegador con lib/supabase/client.ts y lecturas con lib/supabase/server.ts, ambas con la publishable key). Sin Server Actions, sin SUPABASE_SECRET_KEY y sin createAdminClient. El SQL usa la RLS opción A (anon con CRUD en posts, igual que hoy) y no revoca las vistas analytics_*. Restringir escrituras a 'authenticated' con Supabase Auth es trabajo de F-011",
+        "[ ] Rama: feature/F-010 creada desde main. Se mergea y despliega sola junto con f-010-migration.sql",
+        "[ ] 1 · types/: types/post.ts con el Post unificado (type: string, description, tags: string[], github_url, website_url; sin excerpt ni user_id) y su Insert/Update/FormData; types/analytics.ts sin AnalyticsResourceType ni AnalyticsTopProject, AnalyticsEvent con post_id, AnalyticsDaily sin resource_type, AnalyticsSummary solo total_views/unique_visitors, AnalyticsData sin topProjects; types/database.ts sin projects, tags, posts_tags ni analytics, con analytics_events, solo las vistas summary/daily/top_posts y track_view(p_post_id, p_visitor_id, p_referrer, p_user_agent); borrar types/project.ts, types/tag.ts y EditorContentType de types/editor.ts. Verificable: tsc señala solo consumidores pendientes de los pasos 2-5",
+        "[ ] 2 · lib/: lib/supabase/tables.ts sin projects ni topProjects (quitar NEXT_PUBLIC_SUPABASE_PROJECTS_TABLE); un solo helper de errores en lib/supabase/errors.ts (friendlyError con el 23505 de slug) usado por posts.ts y analytics.ts (cierra la tarea 1 de F-009); lib/supabase/posts.ts sigue con el cliente de navegador y acepta los campos nuevos; analytics.ts sin la consulta a top_projects ni page/post/project_views; storage.ts sin el parámetro contentType (carpeta única posts/)",
+        "[ ] 3 · Borrar duplicados: lib/supabase/projects.ts, hooks/useProjects.ts, utils/validators/project.ts (mover normalizeTag y la validación de URL a utils/validators/post.ts), components/projects/ (mover TagFilterChips a components/posts/) y app/(dashboard)/projects/ completo",
+        "[ ] 4a · PostForm: description en lugar de excerpt; type como input de texto libre con <datalist> de los type ya usados (leídos en el Server Component de la página con lib/supabase/server.ts y pasados como prop); tags, github_url y website_url. validatePost exige type no vacío y absorbe las reglas de validateProject (URLs válidas, tags normalizados)",
+        "[ ] 4b · Listado: PostCard/PostList muestran type y tags; /posts gana los filtros ?tag con TagFilterChips (query.contains('tags', [tag])) y ?type (query.eq('type', type)), añadiendo type a ListParams en lib/list-params.ts y types/list-params.ts",
+        "[ ] 5 · Consumidores: Sidebar (sin enlace a proyectos), app/(dashboard)/page.tsx (un solo contador), analytics/page.tsx y TopResourceList (sin tarjetas de vistas a posts/proyectos ni lista top de proyectos; buildDailySeries sin sumar por resource_type), TiptapEditor sin la prop contentType, (dashboard)/not-found.tsx y metadata de app/layout.tsx",
+        "[ ] 6 · Docs: README.md (tabla posts unificada sin user_id, analytics_events, tres vistas, track_view y RLS opción A con su aviso de seguridad), .env.example (sin PROJECTS_TABLE; el prefijo cubre tres vistas) y AGENTS.md (sin projects); anotar en memory.md",
+        "[ ] 7 · Verificar con grep que no quedan Project, projects, excerpt, demo_url, resource_type, top_projects, topProjects, EditorContentType, PostType ni POST_TYPES en app/ components/ hooks/ lib/ types/ utils/; pnpm lint, npx tsc --noEmit y pnpm build",
         "[ ] (Humano) Al desplegar F-010: ejecutar docs/exploraciones/f-010-migration.sql en Supabase justo antes o después del deploy (DESTRUCTIVO: borra posts, projects, tags, posts_tags, analytics y las vistas analytics_*). Si el portfolio público lee projects, adaptarlo a la vez",
         "[ ] (Humano) Borrar a mano los ficheros huérfanos de las carpetas posts/ y projects/ del bucket tiptap_content (y sus filas en images si se quiere)"
       ],
@@ -184,31 +185,14 @@
     },
     {
       "id": "F-011",
-      "name": "Login con better-auth",
+      "name": "Login del dueño con Supabase Auth",
       "assigned_to": null,
       "status": "blocked",
       "tasks": [
-        "[-] Exploración: conflicto RLS/auth.uid() con better-auth, integración con Next 16, tablas y método de login; registrado en docs/exploraciones/explorer.md. Opción (a): better-auth con adaptador Postgres en el schema better_auth; el dashboard lee y escribe desde el servidor con SUPABASE_SECRET_KEY tras comprobar la sesión; RLS solo deja a anon leer lo publicado",
-        "[-] (Humano) Preguntas abiertas cerradas (2026-11-05): se quita user_id de posts, projects e images; recuperar contraseña fuera de alcance; revoke select de analytics_* a anon/authenticated; rate limit de sign-in max 5 en memoria; DATABASE_URL con rol propio better_auth_app; una rama por feature (F-011 primero, sobre el esquema actual). Ver docs/decisiones/decisions.md",
-        "[ ] Rama y orden: rama propia (feature/F-011), sobre el esquema ACTUAL (posts + projects). No depende de F-010; se mergea y despliega sola",
-        "[ ] (Humano) Instalar better-auth y pg (dependencias) y @types/pg (devDependency); kysely ya viene con better-auth y server-only no hace falta",
-        "[ ] (Humano) Antes del código: ejecutar docs/exploraciones/f-011-auth-role.sql poniendo a mano la contraseña; rellenar .env.local (DATABASE_URL con usuario better_auth_app.<project_ref>); npx auth@latest migrate con la cadena en modo session (5432)",
-        "[ ] Implementador A · lib/auth.ts: betterAuth con database: new Pool({ connectionString: DATABASE_URL, max: 1 }) de pg (sin importar kysely; el schema better_auth sale del search_path del rol better_auth_app), emailAndPassword sin verificación, databaseHooks.user.create.before que lanza APIError si el email no es ADMIN_EMAIL, rateLimit { enabled: true, storage: 'memory', customRules: { '/sign-in/email': { window: 60, max: 5 } } }, plugins [nextCookies()] al final; exportar requireSession() con React cache que llama a auth.api.getSession({ headers: await headers() }) y redirige a /login sin sesión",
-        "[ ] Implementador A · lib/auth-client.ts (createAuthClient de better-auth/react) y app/api/auth/[...all]/route.ts con export const { GET, POST } = toNextJsHandler(auth)",
-        "[ ] Implementador A · app/(auth)/login/page.tsx con formulario accesible (authClient.signIn.email, mensaje de error y de demasiados intentos con role=alert), sin página de registro; proxy.ts en la raíz con getSessionCookie (comprobación optimista; matcher sin /login, /api/auth, _next ni estáticos); botón de cerrar sesión en components/layout/Sidebar.tsx",
-        "[ ] Implementador A · .env.example: BETTER_AUTH_SECRET, BETTER_AUTH_URL, DATABASE_URL (pooler transaction 6543, usuario better_auth_app.<project_ref>), SUPABASE_SECRET_KEY y ADMIN_EMAIL, todas sin NEXT_PUBLIC_",
-        "[ ] Implementador B · types: quitar user_id de types/post.ts, types/project.ts y types/image.ts (y de sus Omit); types/tag.ts no se toca (lo borra F-010)",
-        "[ ] Implementador B · imágenes, parte pura: mover validateImageFile, ACCEPTED_IMAGE_TYPES y MAX_IMAGE_SIZE a utils/validators/image.ts y actualizar imports en PostForm, ProjectForm y TiptapEditor",
-        "[ ] Implementador B (cuando exista requireSession) · lib/supabase/admin.ts: createAdminClient() hace await requireSession() y crea el cliente de supabase-js tipado con Database usando SUPABASE_SECRET_KEY (sin persistir sesión)",
-        "[ ] Implementador B · lecturas a createAdminClient(): app/(dashboard)/page.tsx, posts/page.tsx, posts/[id]/page.tsx, projects/page.tsx, projects/[id]/page.tsx y lib/supabase/analytics.ts; borrar lib/supabase/client.ts y server.ts cuando no tengan uso",
-        "[ ] Implementador B · escrituras: lib/supabase/posts.ts y lib/supabase/projects.ts pasan a 'use server' con createAdminClient() (solo exportan funciones async; hooks/usePosts.ts y useProjects.ts siguen igual)",
-        "[ ] Implementador B · lib/supabase/storage.ts pasa a Server Action ('use server'): uploadEditorImage(file, contentType) revalida con validateImageFile, sube con la secret key y hace await del insert en images (si falla, console.warn; no bloquea); EDITOR_IMAGE_BUCKET deja de exportarse o va a tables.ts; experimental.serverActions.bodySizeLimit '2mb' en next.config.ts",
-        "[ ] Docs: README.md (setup de better-auth, rol better_auth_app, migrate, crear admin, RLS, analytics_* solo servidor y que la publishable key solo la usa el portfolio público), AGENTS.md (lib/auth*, admin.ts, proxy.ts, login, utils/validators/image.ts) y memory.md",
-        "[ ] Verificar pnpm lint, npx tsc --noEmit y pnpm build. Prueba manual en local: sin sesión /posts redirige a /login; el 6.º intento de login en 60 s devuelve 429; con sesión se crean/editan posts, projects e imágenes",
-        "[ ] (Humano) Desplegar F-011 y crear el admin con POST /api/auth/sign-up/email (cabecera Origin = BETTER_AUTH_URL)",
-        "[ ] (Humano) DESPUÉS del deploy: ejecutar docs/exploraciones/f-011-rls.sql y borrar a mano las políticas de escritura del bucket; comprobar que con la publishable key un insert en /rest/v1/posts falla y un select de analytics_summary da permission denied",
-        "[ ] (Humano) Quitar @supabase/ssr cuando no quede ningún import",
-        "Fuera de alcance: recuperar la contraseña por correo (sendResetPassword exige proveedor de correo); posible en el futuro. Hoy se resetea con SQL o borrando el usuario y registrándolo otra vez. Tampoco rate limit compartido entre instancias (storage 'database')"
+        "[-] (Humano, 2026-11-09) Se quita better-auth. La exploración anterior (better-auth, rol better_auth_app, secret key en servidor) queda descartada y se borran f-011-auth-role.sql y f-011-rls.sql",
+        "[ ] Exploración nueva: login email+password con Supabase Auth usando @supabase/ssr (ya instalado; lib/supabase/client.ts y server.ts ya manejan cookies), registro público desactivado en el proyecto de Supabase, proxy.ts de Next 16 que refresca la sesión, y RLS opción B: anon solo lee lo publicado y 'authenticated' escribe en posts, images y el bucket. Sin dependencias nuevas. Registrar en docs/exploraciones/explorer.md y proponer el SQL en docs/exploraciones/f-011-*.sql",
+        "[ ] Dependencias: F-010 mergeada en main (rama propia feature/F-011, sobre la tabla posts unificada)",
+        "Bloqueada por decisión del humano (2026-11-06); se descompone al desbloquearla"
       ],
       "exploration": true
     }

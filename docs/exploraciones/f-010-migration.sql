@@ -7,16 +7,15 @@
 -- El humano decidió empezar de cero (no se migran datos). Revísalo entero,
 -- haz un backup si dudas y ejecútalo a mano en el SQL Editor de Supabase.
 --
--- Requisito: F-011 mergeada y desplegada, y sus dos SQL ya ejecutados
--- (f-011-auth-role.sql: rol y schema better_auth; f-011-rls.sql: user_id fuera
--- de images, RLS de images, revoke de analytics_* a anon,
--- bucket público de 1 MB sin escritura para anon). Este script no repite nada
--- de eso; solo crea lo que la tabla posts nueva necesita.
+-- Requisito: ninguno. F-010 se hace sobre la arquitectura actual (sin login,
+-- el dashboard lee y escribe con la publishable key, rol anon). No toca images
+-- ni el bucket.
 -- Cuándo: justo al desplegar F-010. Entre ejecutarlo y que el deploy termine,
 -- el código anterior (que aún lee projects y excerpt) falla: es la ventana de
 -- deploy de una migración destructiva, no un hueco de escritura de anon.
 -- Decisiones cerradas: posts.type es texto libre (sin check constraint); RLS
--- opción B con better-auth (anon solo lee posts publicados).
+-- opción A (anon con CRUD en posts, igual que hoy). Pasar a la opción B
+-- (escritura solo de 'authenticated' con Supabase Auth) es trabajo de F-011.
 -- Los ficheros que ya haya en las carpetas posts/ y projects/ del bucket
 -- quedan huérfanos (el humano los borra a mano). Se pierden las visitas a páginas que no son un
 -- post (page_path, resource_type 'page'): aceptado por el humano.
@@ -141,22 +140,16 @@ from public.analytics_events e
 join public.posts p on p.id = e.post_id
 group by p.id;
 
--- Solo las lee el servidor (decisión F-011). Los privilegios por defecto de
--- Supabase conceden select a anon/authenticated en objetos nuevos de public, así
--- que hay que revocarlo otra vez al recrear las vistas.
-revoke select on public.analytics_summary, public.analytics_daily, public.analytics_top_posts
-  from anon, authenticated;
-grant select on public.analytics_summary, public.analytics_daily, public.analytics_top_posts
-  to service_role;
-
--- 5. RLS de las tablas nuevas (las de images y el bucket ya las dejó F-011).
---    El dashboard usa la secret key (se salta RLS); anon/authenticated solo
---    leen posts publicados.
+-- 5. RLS opción A: el dashboard no tiene login y usa la publishable key (anon),
+--    así que anon necesita CRUD en posts. AVISO: cualquiera con la URL y la key
+--    puede escribir; F-011 lo restringe a 'authenticated' con Supabase Auth.
+--    Las vistas analytics_* conservan el select por defecto de anon porque las
+--    lee analytics.ts con la publishable key.
 alter table public.posts enable row level security;
 -- Sin políticas: nadie lee ni escribe eventos directamente (solo track_view y las vistas).
 alter table public.analytics_events enable row level security;
 
-create policy posts_public_read on public.posts
-  for select to anon, authenticated using (published);
+create policy posts_anon_all on public.posts
+  for all to anon, authenticated using (true) with check (true);
 
 commit;

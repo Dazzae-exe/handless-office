@@ -119,4 +119,4 @@ Todas deben ser true, no deberia haber decisiones anotadas en falso.
 - Cada rama debe poder mergearse y desplegarse sola, sin dejar el dashboard sin poder leer o escribir.
 - Si una feature necesita otra, espera a que esa otra esté mergeada en `main`.
 - Los SQL propuestos viven en `docs/exploraciones/f-XXX-*.sql`. No se ejecutan sin revisión del humano y su cabecera indica cuándo ejecutarlos.
-- Orden actual: F-011 (login con better-auth) → F-010 (unificar posts y projects) → F-006 y F-007. F-009 se revisa al terminar F-010.
+- Orden actual: F-010 (unificar posts y projects) → F-006, F-007 y F-011 (login con Supabase Auth, bloqueada). F-009 se revisa al terminar F-010.
